@@ -14,10 +14,13 @@ with open('tags.json', 'r') as f:
     apriltag_data = json.load(f)
 apriltag_poses = {tag['id']: (tag['name'], tag['position']) for tag in apriltag_data['apriltags']}
 
-# User select a target apriltag
-tag_id = 3
-tag_pose = apriltag_poses[tag_id][1]
-user_pose = calculate_pose.calculate_pose(tag_id, 3.0, 315.0)
+# Calculate the pose of the user using detected AprilTag
+detected_tag_id = 4
+user_pose = calculate_pose.calculate_pose(detected_tag_id, 3.0, 45.0)
+
+# Calculate the pose of the selected AprilTag
+selected_tag_id = 3
+tag_pose = apriltag_poses[selected_tag_id][1]
 
 # Calculate direction vector to the selected AprilTag
 direction_vector = np.array(tag_pose[:2]) - np.array(user_pose[:2])
