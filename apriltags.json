@@ -1,0 +1,28 @@
+{
+  "apriltags": [
+    {
+      "id": 0,
+      "name": "Wall0",
+      "position": [2.0, 0.0, 1.0, 90.0],
+      "pdf": "tag36h11_200mm_id000.pdf"
+    },
+    {
+      "id": 1,
+      "name": "Wall1",
+      "position": [4.0, 3.0, 1.0, 180.0],
+      "pdf": "tag36h11_200mm_id001.pdf"
+    },
+    {
+      "id": 2,
+      "name": "Wall2",
+      "position": [2.0, 6.0, 1.0, 270.0],
+      "pdf": "tag36h11_200mm_id002.pdf"
+    },
+    {
+      "id": 3,
+      "name": "Wall3",
+      "position": [0.0, 3.0, 1.0, 0.0],
+      "pdf": "tag36h11_200mm_id003.pdf"
+    }
+  ]
+}
