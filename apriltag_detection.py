@@ -1,11 +1,10 @@
 import cv2
 import apriltag
 import json
+import numpy as np
 import os
-from pdf2image import convert_from_path  # Library to convert PDF to image
-import numpy as np  # Import NumPy to handle array conversion
 
-def detect_and_mark_apriltags_with_metadata(image_path, json_path, pdf_dir):
+def detect_and_mark_apriltags(image_path, json_path, pdf_dir):
     # Load the image
     image = cv2.imread(image_path)
     gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
@@ -23,7 +22,7 @@ def detect_and_mark_apriltags_with_metadata(image_path, json_path, pdf_dir):
     # Detect AprilTags in the image
     results = detector.detect(gray)
 
-    # List to store centers and additional metadata of detected AprilTags
+    # List to store corners and center of detected AprilTags
     detected_tag_info = []
 
     # Loop over the detected results
@@ -34,8 +33,6 @@ def detect_and_mark_apriltags_with_metadata(image_path, json_path, pdf_dir):
         if tag_id in apriltag_dict:
             tag_info = apriltag_dict[tag_id]  # Fetch metadata
             name = tag_info["name"]  # Use only the name
-            position = tag_info["position"]
-            pdf_file = tag_info.get("pdf", None)
 
             # Extract the bounding box (four corners) of the tag
             (ptA, ptB, ptC, ptD) = r.corners
@@ -58,13 +55,16 @@ def detect_and_mark_apriltags_with_metadata(image_path, json_path, pdf_dir):
             cv2.putText(image, name, (ptA[0], ptA[1] - 10),
                         cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 255, 0), 2)
 
-            # Append the tag's metadata and center to the list
+            # Append the tag's ID, four corners, and center to the list
             detected_tag_info.append({
                 "id": tag_id,
-                "name": name,
-                "position": position,
-                "center": (cX, cY),
-                "pdf": pdf_file
+                "corners": {
+                    "ptA": ptA,
+                    "ptB": ptB,
+                    "ptC": ptC,
+                    "ptD": ptD
+                },
+                "center": (cX, cY)
             })
 
     # Save the image with marked AprilTags in the same folder as the input image
@@ -72,10 +72,64 @@ def detect_and_mark_apriltags_with_metadata(image_path, json_path, pdf_dir):
     output_path = os.path.join(os.path.dirname(image_path), f"{base_name}_marked.png")
     cv2.imwrite(output_path, image)
 
-    # Return the list of detected tags with their metadata
+    # Return the list of detected tags with their corners and center locations
     return detected_tag_info
+
+
+
+def calculate_distance_and_angle(tag_info, camera_focal_length, image_width, image_height, real_tag_size=0.2):
+    """
+    Calculate real-world distance and angle from camera to AprilTag.
+    
+    Parameters:
+    - tag_info (dict): The dictionary containing ID, corners, and center from previous function.
+    - camera_focal_length (float): The focal length of the camera in pixels.
+    - image_width (int): Width of the camera image in pixels.
+    - image_height (int): Height of the camera image in pixels.
+    - real_tag_size (float): Real-world size of the AprilTag (default is 0.2 meters = 200 mm).
+    
+    Returns:
+    - distance (float): Distance from the camera to the AprilTag in meters.
+    - angle (float): Angle between the camera and the AprilTag in degrees.
+    """
+    
+    # Extract the corners of the tag from the input
+    corners = tag_info["corners"]
+    ptA = np.array(corners["ptA"])
+    ptB = np.array(corners["ptB"])
+    ptC = np.array(corners["ptC"])
+    ptD = np.array(corners["ptD"])
+
+    # Calculate the pixel width of the tag in the image (distance between ptA and ptB)
+    pixel_tag_width = np.linalg.norm(ptA - ptB)
+
+    # Calculate the distance using the pinhole camera model
+    distance = (real_tag_size * camera_focal_length) / pixel_tag_width
+
+    # Extract the center of the tag from the input
+    tag_center = np.array(tag_info["center"])
+
+    # Compute the camera image center
+    image_center = np.array([image_width / 2, image_height / 2])
+
+    # Calculate the displacement between the image center and the tag center
+    displacement_x = tag_center[0] - image_center[0]
+
+    # Calculate the horizontal angle using the displacement in pixels and the focal length
+    angle = np.degrees(np.arctan(displacement_x / camera_focal_length))
+
+    return distance, angle
+
+
 
 # Example usage
 if __name__ == "__main__":
-    detected_info = detect_and_mark_apriltags_with_metadata("test_images/0.png", "apriltags.json", "apriltag_images/")
-    print("Detected AprilTags with metadata:", detected_info)
+    detected_info = detect_and_mark_apriltags("test_images/0.png", "apriltags.json", "apriltag_images/")
+    print("Detected AprilTags with metadata (ID, corners, and center):")
+    for tag in detected_info:
+        print(f"Tag ID: {tag['id']}")
+        print(f"  Corners: {tag['corners']}")
+        print(f"  Center: {tag['center']}")
+        distance, angle = calculate_distance_and_angle(tag, 1000, 640, 480)
+        print(f"  Distance: {distance:.2f} meters")
+        print(f"  Angle: {angle:.2f} degrees")
