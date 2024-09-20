@@ -69,7 +69,7 @@ def detect_and_mark_apriltags(image_path, json_path, pdf_dir):
 
     # Save the image with marked AprilTags in the same folder as the input image
     base_name = os.path.splitext(os.path.basename(image_path))[0]
-    output_path = os.path.join(os.path.dirname(image_path), f"{base_name}_marked.png")
+    output_path = os.path.join(os.path.dirname(image_path), f"{base_name}_marked.jpg")
     cv2.imwrite(output_path, image)
 
     # Return the list of detected tags with their corners and center locations
@@ -89,19 +89,19 @@ def calculate_distance_and_angle(tag_info, camera_focal_length, image_width, ima
     - real_tag_size (float): Real-world size of the AprilTag (default is 0.2 meters = 200 mm).
     
     Returns:
-    - distance (float): Distance from the camera to the AprilTag in meters.
-    - angle (float): Angle between the camera and the AprilTag in degrees.
+    - (tuple): tag ID, distance (in meters), and angle (in degrees).
     """
     
     # Extract the corners of the tag from the input
     corners = tag_info["corners"]
     ptA = np.array(corners["ptA"])
     ptB = np.array(corners["ptB"])
-    ptC = np.array(corners["ptC"])
-    ptD = np.array(corners["ptD"])
 
     # Calculate the pixel width of the tag in the image (distance between ptA and ptB)
     pixel_tag_width = np.linalg.norm(ptA - ptB)
+
+    if pixel_tag_width == 0:
+        return tag_info["id"], None, None  # Avoid division by zero
 
     # Calculate the distance using the pinhole camera model
     distance = (real_tag_size * camera_focal_length) / pixel_tag_width
@@ -118,18 +118,19 @@ def calculate_distance_and_angle(tag_info, camera_focal_length, image_width, ima
     # Calculate the horizontal angle using the displacement in pixels and the focal length
     angle = np.degrees(np.arctan(displacement_x / camera_focal_length))
 
-    return distance, angle
+    return tag_info["id"], distance, angle
 
 
 
 # Example usage
 if __name__ == "__main__":
-    detected_info = detect_and_mark_apriltags("test_images/0.png", "apriltags.json", "apriltag_images/")
-    print("Detected AprilTags with metadata (ID, corners, and center):")
+    detected_info = detect_and_mark_apriltags("test_images/3.jpg", "apriltags.json", "apriltag_images/")
+    print("Detected AprilTags:")
     for tag in detected_info:
-        print(f"Tag ID: {tag['id']}")
-        print(f"  Corners: {tag['corners']}")
-        print(f"  Center: {tag['center']}")
-        distance, angle = calculate_distance_and_angle(tag, 1000, 640, 480)
-        print(f"  Distance: {distance:.2f} meters")
-        print(f"  Angle: {angle:.2f} degrees")
+        tag_id, distance, angle = calculate_distance_and_angle(tag, 303.952, 404, 302, 0.1)
+        if distance is not None and angle is not None:
+            print(f"AprilTag ID: {tag_id}")
+            print(f"  Distance: {distance:.2f} meters")
+            print(f"  Angle: {angle:.2f} degrees")
+        else:
+            print(f"AprilTag ID: {tag_id} could not be calculated properly.")

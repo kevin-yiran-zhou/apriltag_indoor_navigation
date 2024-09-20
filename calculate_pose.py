@@ -1,9 +1,6 @@
 import numpy as np
 import json
 
-def get_distance_and_angle(tag_id, apriltag_data):
-    pass
-
 def calculate_pose(tag_id, distance, angle):
     with open('tags.json', 'r') as f:
         apriltag_data = json.load(f)
