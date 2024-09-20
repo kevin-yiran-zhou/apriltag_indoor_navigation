@@ -4,7 +4,7 @@ import json
 import numpy as np
 import os
 
-def detect_and_mark_apriltags(image_path, json_path, pdf_dir):
+def detect_and_mark_apriltags(image_path, json_path):
     # Load the image
     image = cv2.imread(image_path)
     gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
@@ -77,7 +77,7 @@ def detect_and_mark_apriltags(image_path, json_path, pdf_dir):
 
 
 
-def calculate_distance_and_angle(tag_info, camera_focal_length, image_width, image_height, real_tag_size=0.2):
+def calculate_distance_and_angle(tag_info, camera_focal_length, image_width, image_height, real_tag_size):
     """
     Calculate real-world distance and angle from camera to AprilTag.
     
@@ -119,18 +119,3 @@ def calculate_distance_and_angle(tag_info, camera_focal_length, image_width, ima
     angle = np.degrees(np.arctan(displacement_x / camera_focal_length))
 
     return tag_info["id"], distance, angle
-
-
-
-# Example usage
-if __name__ == "__main__":
-    detected_info = detect_and_mark_apriltags("test_images/3.jpg", "apriltags.json", "apriltag_images/")
-    print("Detected AprilTags:")
-    for tag in detected_info:
-        tag_id, distance, angle = calculate_distance_and_angle(tag, 303.952, 404, 302, 0.1)
-        if distance is not None and angle is not None:
-            print(f"AprilTag ID: {tag_id}")
-            print(f"  Distance: {distance:.2f} meters")
-            print(f"  Angle: {angle:.2f} degrees")
-        else:
-            print(f"AprilTag ID: {tag_id} could not be calculated properly.")

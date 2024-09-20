@@ -1,8 +1,8 @@
 import numpy as np
 import json
 
-def calculate_pose(tag_id, distance, angle):
-    with open('tags.json', 'r') as f:
+def calculate_pose(tag_id, distance, angle, json_path):
+    with open(json_path, 'r') as f:
         apriltag_data = json.load(f)
     apriltag_poses = {tag['id']: (tag['name'], np.array(tag['position'])) for tag in apriltag_data['apriltags']}
     tag_pose = apriltag_poses[tag_id][1]
