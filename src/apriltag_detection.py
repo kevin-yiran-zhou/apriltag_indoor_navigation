@@ -22,7 +22,7 @@ def detect_and_mark_apriltags(image_path, json_path):
     # Detect AprilTags in the image
     results = detector.detect(gray)
 
-    # List to store corners and center of detected AprilTags
+    # List to store corners, center, and orientation of detected AprilTags
     detected_tag_info = []
 
     # Loop over the detected results
@@ -51,11 +51,17 @@ def detect_and_mark_apriltags(image_path, json_path):
             (cX, cY) = (int(r.center[0]), int(r.center[1]))
             cv2.circle(image, (cX, cY), 5, (0, 0, 255), -1)
 
+            # Calculate the extra angle (rotation of the tag in the image)
+            # We can calculate the angle using two corners (e.g., ptA and ptB)
+            delta_x = ptB[0] - ptA[0]
+            delta_y = ptB[1] - ptA[1]
+            tag_rotation_angle = np.degrees(np.arctan2(delta_y, delta_x))
+
             # Draw only the name of the tag on the image
             cv2.putText(image, name, (ptA[0], ptA[1] - 10),
                         cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 255, 0), 2)
 
-            # Append the tag's ID, four corners, and center to the list
+            # Append the tag's ID, four corners, center, and rotation angle to the list
             detected_tag_info.append({
                 "id": tag_id,
                 "corners": {
@@ -64,7 +70,8 @@ def detect_and_mark_apriltags(image_path, json_path):
                     "ptC": ptC,
                     "ptD": ptD
                 },
-                "center": (cX, cY)
+                "center": (cX, cY),
+                "rotation_angle": tag_rotation_angle  # Added extra angle
             })
 
     # Save the image with marked AprilTags in the same folder as the input image
@@ -72,24 +79,22 @@ def detect_and_mark_apriltags(image_path, json_path):
     output_path = os.path.join(os.path.dirname(image_path), f"{base_name}_marked.jpg")
     cv2.imwrite(output_path, image)
 
-    # Return the list of detected tags with their corners and center locations
+    # Return the list of detected tags with their corners, center, and rotation angle
     return detected_tag_info
-
-
 
 def calculate_distance_and_angle(tag_info, camera_focal_length, image_width, image_height, real_tag_size):
     """
     Calculate real-world distance and angle from camera to AprilTag.
     
     Parameters:
-    - tag_info (dict): The dictionary containing ID, corners, and center from previous function.
+    - tag_info (dict): The dictionary containing ID, corners, center, and rotation_angle.
     - camera_focal_length (float): The focal length of the camera in pixels.
     - image_width (int): Width of the camera image in pixels.
     - image_height (int): Height of the camera image in pixels.
     - real_tag_size (float): Real-world size of the AprilTag (default is 0.2 meters = 200 mm).
     
     Returns:
-    - (tuple): tag ID, distance (in meters), and angle (in degrees).
+    - (tuple): tag ID, distance (in meters), angle (in degrees), and tag rotation angle.
     """
     
     # Extract the corners of the tag from the input
@@ -101,7 +106,7 @@ def calculate_distance_and_angle(tag_info, camera_focal_length, image_width, ima
     pixel_tag_width = np.linalg.norm(ptA - ptB)
 
     if pixel_tag_width == 0:
-        return tag_info["id"], None, None  # Avoid division by zero
+        return tag_info["id"], None, None, None  # Avoid division by zero
 
     # Calculate the distance using the pinhole camera model
     distance = (real_tag_size * camera_focal_length) / pixel_tag_width
@@ -118,4 +123,7 @@ def calculate_distance_and_angle(tag_info, camera_focal_length, image_width, ima
     # Calculate the horizontal angle using the displacement in pixels and the focal length
     angle = np.degrees(np.arctan(displacement_x / camera_focal_length))
 
-    return tag_info["id"], distance, angle
+    # Get the extra rotation angle of the tag
+    tag_rotation_angle = tag_info["rotation_angle"]
+
+    return tag_info["id"], distance, angle, tag_rotation_angle
