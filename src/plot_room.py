@@ -5,7 +5,7 @@ import matplotlib.pyplot as plt
 import json
 import numpy as np
 
-def plot_room(user_pose, target_tag_id, json_path, output_path="1_plot.jpg"):
+def plot_room(user_pose, target_tag_id, json_path, output_path):
     """
     Plots the room layout, user position, target tag position, and the path between them,
     and saves the plot as an image file.
@@ -47,10 +47,6 @@ def plot_room(user_pose, target_tag_id, json_path, output_path="1_plot.jpg"):
 
     # Draw path from user to target tag
     plt.plot([user_x, target_x], [user_y, target_y], color='purple', linestyle='--', label='Path to Target')
-
-    # Invert the Y-axis labels to match the inverted axis
-    y_ticks = plt.gca().get_yticks()
-    plt.gca().set_yticklabels([int(6 - tick) for tick in y_ticks])  # Reverse the tick labels
 
     # Save the plot to a file instead of displaying it
     plt.xlabel('X')
