@@ -1,32 +1,32 @@
 import numpy as np
-import json
 
-def calculate_pose(tag_id, distance, angle, tag_rotation_angle, json_path):
+def calculate_pose(tag_id, detected_tag_info):
     """
     Calculate the user's position and orientation based on the detected AprilTag.
+    This involves inverting the tag's pose to get the user's pose in the room,
+    considering both yaw and the AprilTag's rotation along the vertical axis.
     """
-    with open(json_path, 'r') as f:
-        apriltag_data = json.load(f)
+    # Extract tag information from the detected info
+    for tag in detected_tag_info:
+        if tag["id"] == tag_id:
+            translation = tag["translation"]
+            rotation = tag["rotation"]
 
-    apriltag_poses = {tag['id']: (tag['name'], np.array(tag['position'])) for tag in apriltag_data['apriltags']}
-    tag_pose = apriltag_poses[tag_id][1]
+            # Invert the translation: the user's position is the negative of the tag's translation
+            tx, ty, tz = translation
+            user_position = [-tx, -ty, -tz]  # Inverted translation
 
-    # Tag's position in the room (x, y) and its facing angle in world coordinates
-    tag_x, tag_y, tag_z, tag_facing_angle = tag_pose
+            # Extract the yaw (rotation around the vertical axis) and roll
+            yaw = rotation[0]  # Yaw angle (rotation around the vertical axis)
+            roll = rotation[2]  # Roll angle (rotation along the camera's view axis)
 
-    # Adjust the relative angle correctly (user's perspective, left-negative, right-positive)
-    adjusted_angle = (tag_facing_angle - angle + tag_rotation_angle) % 360
+            # Invert the yaw (flip 180 degrees) to get the user's facing direction
+            user_yaw = (yaw + 180) % 360
 
-    # Calculate the user's position relative to the tag
-    x = tag_x + distance * np.cos(np.radians(adjusted_angle))
-    y = tag_y + distance * np.sin(np.radians(adjusted_angle))
+            # Tag rotation: Adjust the user's facing angle by the tag's rotation (roll)
+            adjusted_user_yaw = (user_yaw + roll) % 360
 
-    # User's facing angle relative to the room
-    user_facing_angle = (adjusted_angle + 180) % 360  # Adding 180 to flip the user's facing direction
+            # Return the user's pose (x, y) and adjusted facing angle (yaw)
+            return [user_position[0], user_position[2], adjusted_user_yaw]  # In room coordinates (x, z as y)
 
-    # If the user_facing_angle is incorrect, you can toggle between +180 or -180 depending on the setup.
-    # Uncomment the next line if you find that subtracting 180 degrees works better in your scenario:
-    # user_facing_angle = (adjusted_angle - 180) % 360
-
-    return [x, y, user_facing_angle]
-
+    return None  # If no matching tag is found

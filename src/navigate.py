@@ -14,6 +14,7 @@ def message(clock, distance):
     """
     Generates a directional message based on the clock direction and distance.
     """
+    distance = round(distance, 1)
     if clock == 12:
         return f"Go straight and walk {distance} meters."
     elif clock in [1, 11]:
