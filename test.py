@@ -5,8 +5,10 @@ image_number = 1
 image_path = f"test_images/{image_number}.jpg"
 json_path = "apriltags.json"
 camera_focal_length = 304
-image_width = 404
-image_height = 302
+# image_width = 4031
+# image_height = 3022
+image_width = 1330
+image_height = 997
 real_tag_size = 0.1
 target_tag_id = 3
 

@@ -23,7 +23,7 @@ def plot_room(user_pose, target_tag_id, json_path, output_path):
     user_x, user_y, user_angle = user_pose
 
     # Create a plot
-    plt.figure(figsize=(6, 6))
+    plt.figure(figsize=(4.4, 6.6))
     plt.xlim(0, 4)
     plt.ylim(0, 6)
     plt.gca().invert_yaxis()  # Invert the y-axis so positive is downward
