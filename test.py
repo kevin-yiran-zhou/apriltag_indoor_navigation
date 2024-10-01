@@ -1,5 +1,6 @@
 from src import apriltag_detection, calculate_pose, navigate, plot_room
 import numpy as np
+import json
 
 # parameters
 image_number = 3
@@ -12,42 +13,39 @@ target_tag_id = 3
 # Calculate the center points
 image_width = round(4031*0.3)
 image_height = round(3023*0.3)
-c_x = image_width / 2
-c_y = image_height / 2
+# c_x = image_width / 2
+# c_y = image_height / 2
+c_x = image_width
+c_y = image_height
 camera_matrix = np.array([[camera_focal_length, 0, c_x],
                           [0, camera_focal_length, c_y],
                           [0, 0, 1]])
 dist_coeffs = np.zeros((1, 5))
 
+# Load the apriltags.json file
+with open(json_path, 'r') as f:
+    apriltag_data = json.load(f)
+
 
 # main function
 def main():
     # Tag detection
-    detected_info = apriltag_detection.detect_and_mark_apriltags(image_path, json_path, camera_matrix, dist_coeffs, real_tag_size)
+    detected_info = apriltag_detection.detect_and_mark_apriltags(image_path, apriltag_data)
     if detected_info is None:
         print("No AprilTag detected.")
         return None
-    print("======================================")
-    print(f"AprilTag {detected_info[0]['id']}")
-    print(f"  Center: {detected_info[0]['center']}")
-    print(f"  Rotation: {[angle * 180 / np.pi for angle in detected_info[0]['rotation']]} degrees")
 
     # Extract the first detected tag's pose (translation and rotation)
     tag_id = detected_info[0]["id"]
-    pose = calculate_pose.calculate_pose(tag_id, detected_info)
-
+    pose = calculate_pose.calculate_pose(apriltag_data, tag_id, detected_info, camera_matrix, dist_coeffs, real_tag_size)
     if pose is None:
         print(f"No pose found for tag ID {tag_id}")
         return None
-    print("======================================")
-    print(f"Pose:")
-    print(f"  X: {pose[0]:.2f} meters")
-    print(f"  Y: {pose[1]:.2f} meters")
-    print(f"  User Facing Angle (Yaw): {pose[2]:.2f} degrees")
 
     # Navigation
+    twoD_pose = [pose["x"], pose["y"], pose["yaw"]]
     relative_angle, distance_to_tag = navigate.calculate_navigation(
-        pose, target_tag_id, json_path
+        twoD_pose, target_tag_id, json_path
     )
     clock = navigate.angle_to_clock_direction(relative_angle)
     print("======================================")
@@ -56,7 +54,7 @@ def main():
 
     # Plot
     output_path = f"test_images/{image_number}_plot.jpg"
-    plot_room.plot_room(pose, target_tag_id, json_path, output_path)
+    plot_room.plot_room(twoD_pose, target_tag_id, json_path, output_path)
 
     return 0
 
