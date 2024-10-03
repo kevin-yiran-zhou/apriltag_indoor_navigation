@@ -111,7 +111,8 @@ def calculate_pose(apriltag_data, tag_id, detected_tag_info, camera_matrix, dist
             
             # Convert rotation vector to Euler angles (yaw, pitch, roll)
             roll, pitch, yaw = rvec_to_euler_angles(rvec)
-            print(f"  Roll: {np.degrees(roll):.2f}, Pitch: {np.degrees(pitch):.2f}, Yaw: {np.degrees(yaw):.2f}")
+            roll, pitch, yaw = np.degrees(roll)%360, np.degrees(pitch)%360, np.degrees(yaw)%360
+            print(f"  Roll: {roll:.2f}, Pitch: {pitch:.2f}, Yaw: {yaw:.2f}")
             
             # Invert the translation to get the user's relative position
             user_relative_position = invert_translation(tvec.flatten())  # Relative to the tag
@@ -134,7 +135,7 @@ def calculate_pose(apriltag_data, tag_id, detected_tag_info, camera_matrix, dist
 
             # Calculate the relative yaw and absolute yaw of the user
             relative_yaw = np.degrees(np.arctan2(user_relative_position[0], user_relative_position[2]))
-            user_yaw = (-relative_yaw - tag_real_yaw) % 360  # Modulo 360 to keep it within [0, 360] degrees
+            user_yaw = (-relative_yaw + tag_real_yaw) % 360  # Modulo 360 to keep it within [0, 360] degrees
 
             # Return the user's absolute position (x, z, y) and the facing direction (yaw)
             user_pose = {

@@ -1,4 +1,4 @@
-from src import apriltag_detection, calculate_pose, navigate, plot_room
+from src import apriltag_detection_old, calculate_pose_old, navigate, plot_room
 
 # parameters
 image_number = 1
@@ -15,13 +15,13 @@ target_tag_id = 3
 # main function
 def main():
     # Tag detection
-    detected_info = apriltag_detection.detect_and_mark_apriltags(image_path, json_path)
+    detected_info = apriltag_detection_old.detect_and_mark_apriltags(image_path, json_path)
     if detected_info is None:
         print("No AprilTag detected.")
         return None
 
     # Distance, angle, and extra angle calculation
-    tag_id, distance, angle, tag_rotation_angle = apriltag_detection.calculate_distance_and_angle(
+    tag_id, distance, angle, tag_rotation_angle = apriltag_detection_old.calculate_distance_and_angle(
         detected_info[0], camera_focal_length, image_width, image_height, real_tag_size
     )
     print("======================================")
@@ -32,7 +32,7 @@ def main():
     print(f"  Tag Rotation Angle: {tag_rotation_angle:.2f} degrees")  # Display the extra angle
 
     # Pose calculation
-    pose = calculate_pose.calculate_pose(tag_id, distance, angle, tag_rotation_angle, json_path)
+    pose = calculate_pose_old.calculate_pose(tag_id, distance, angle, tag_rotation_angle, json_path)
     print("======================================")
     print("Calculated Pose:")
     print(f"  X: {pose[0]:.2f} meters")
