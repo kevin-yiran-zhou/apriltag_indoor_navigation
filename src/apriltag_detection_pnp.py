@@ -51,7 +51,7 @@ def detect_and_mark_apriltags(image_path, apriltag_data):
                 "id": tag_id,
                 "name": name,
                 "center": (cX, cY),
-                "corners": [ptA, ptB, ptC, ptD],
+                "corners": [ptD, ptC, ptB, ptA]
             })
             print("======================================")
             print(f"AprilTag {detected_tag_info[0]['id']} ({detected_tag_info[0]['name']})")

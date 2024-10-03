@@ -3,18 +3,22 @@ import numpy as np
 import json
 
 # parameters
-image_number = "0_right"
+image_number = "0_middle"
 image_path = f"test_images/{image_number}.jpg"
+print("======================================")
+print(f"image_path: {image_path}")
 json_path = "apriltags.json"
-camera_focal_length = 304
 real_tag_size = 0.1
 target_tag_id = 3
 
 # Calculate the center points
-image_width = 4031
-image_height = 3023
-c_x = 1330
-c_y = 997
+# image_width = 4031
+# image_height = 3023
+image_width = 1330
+image_height = 997
+camera_focal_length = 26 * image_width / 7.03
+c_x = round(1330/2)
+c_y = round(997/2)
 camera_matrix = np.array([[camera_focal_length, 0, c_x],
                           [0, camera_focal_length, c_y],
                           [0, 0, 1]])
