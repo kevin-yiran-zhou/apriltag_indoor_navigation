@@ -3,7 +3,7 @@ import numpy as np
 import json
 
 # parameters
-image_number = "0_middle"
+image_number = "0_right"
 image_path = f"test_images/{image_number}.jpg"
 print("======================================")
 print(f"image_path: {image_path}")
@@ -12,13 +12,15 @@ real_tag_size = 0.1
 target_tag_id = 3
 
 # Calculate the center points
-# image_width = 4031
-# image_height = 3023
-image_width = 1330
-image_height = 997
+org_image_width = 4031
+org_image_height = 3023
+resize = 0.33
+image_width = int(org_image_width * resize)
+image_height = int(org_image_height * resize)
+print(f"  image_width: {image_width}, image_height: {image_height}")
 camera_focal_length = 26 * image_width / 7.03
-c_x = round(1330/2)
-c_y = round(997/2)
+c_x = round(image_width / 2)
+c_y = round(image_height / 2)
 camera_matrix = np.array([[camera_focal_length, 0, c_x],
                           [0, camera_focal_length, c_y],
                           [0, 0, 1]])
@@ -39,7 +41,7 @@ def main():
 
     # Extract the first detected tag's pose (translation and rotation)
     tag_id = detected_info[0]["id"]
-    pose = calculate_pose_pnp.calculate_pose(apriltag_data, tag_id, detected_info, camera_matrix, dist_coeffs, real_tag_size)
+    pose = calculate_pose_pnp.calculate_pose(apriltag_data, tag_id, detected_info, camera_matrix, dist_coeffs, real_tag_size, resize)
     if pose is None:
         print(f"No pose found for tag ID {tag_id}")
         return None
@@ -62,8 +64,3 @@ def main():
 
 if __name__ == "__main__":
     main()
-
-
-            # roll, pitch, yaw = rvec_to_euler_angles(rvec)
-            # roll, pitch, yaw = np.degrees(roll)%360, np.degrees(pitch)%360, np.degrees(yaw)%360
-            # print(f"  Roll: {roll:.2f}, Pitch: {pitch:.2f}, Yaw: {yaw:.2f}")

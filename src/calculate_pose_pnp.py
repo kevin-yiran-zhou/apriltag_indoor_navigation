@@ -58,7 +58,7 @@ def rvec_to_euler_angles(rvec):
 
 
 # Main function to calculate the pose (translation, yaw, pitch, roll) using solvePnP
-def calculate_pose(apriltag_data, tag_id, detected_tag_info, camera_matrix, dist_coeffs, tag_size):
+def calculate_pose(apriltag_data, tag_id, detected_tag_info, camera_matrix, dist_coeffs, tag_size, resize):
     # Extract the corners of the detected AprilTag
     for tag in detected_tag_info:
         if tag["id"] == tag_id:
@@ -72,10 +72,41 @@ def calculate_pose(apriltag_data, tag_id, detected_tag_info, camera_matrix, dist
             
             # Convert rotation vector to Euler angles (yaw, pitch, roll)
             roll, pitch, yaw = rvec_to_euler_angles(rvec)
-            print(f"  Roll: {roll:.2f}, Pitch: {pitch:.2f}, Yaw: {yaw:.2f}")
+            print(f"  Roll: {roll:.2f} degrees, Pitch: {pitch:.2f} degrees, Yaw: {yaw:.2f} degrees")
+
+            # Calculate the distance to the tag
+            print("======================================")
+            tvec_resized = tvec * resize
+            print(f"resized tvec: {tvec_resized}")
+            t_x = tvec_resized[0][0]
+            t_y = tvec_resized[1][0]
+            t_z = tvec_resized[2][0]
+            distance = t_z
+            print(f"Distance: {distance:.2f} meters")
+
+            # Calculate the angle of the tag from the camera
+            horizontal_angle_rad = np.arctan2(t_x, t_z)
+            horizontal_angle_deg = np.degrees(horizontal_angle_rad)
+            print(f"Horizontal Angle: {horizontal_angle_deg:.2f} degrees")
 
             # Get the tag's real-world position and yaw (from apriltag_data)
             tag_real_position = apriltag_data["apriltags"][tag_id]["position"]
             tag_real_x, tag_real_y, tag_real_z, tag_real_facing_angle = tag_real_position
+
+            # Calculate the camera's position and yaw
+            camera_x = tag_real_x + distance * np.sin(np.deg2rad(pitch))
+            camera_y = tag_real_y + distance * np.cos(np.deg2rad(pitch))
+            camera_yaw = tag_real_facing_angle - 180 - pitch - horizontal_angle_deg
+            print("======================================")
+            print(f"Camera Position: ({camera_x:.2f}, {camera_y:.2f})")
+            print(f"Camera Angle: {camera_yaw:.2f} degrees")
+
+            # Return the pose information
+            return {
+                "x": camera_x,
+                "y": camera_y,
+                "yaw": camera_yaw
+            }
+
         
     return None  # If no matching tag is found
