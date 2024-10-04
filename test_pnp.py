@@ -2,40 +2,40 @@ from src import apriltag_detection_pnp, calculate_pose_pnp, navigate, plot_room
 import numpy as np
 import json
 
-# parameters
-image_number = "0_right"
-image_path = f"test_images/{image_number}.jpg"
-print("======================================")
-print(f"image_path: {image_path}")
-json_path = "apriltags.json"
-real_tag_size = 0.1
-target_tag_id = 3
-
-# Calculate the center points
-org_image_width = 4031
-org_image_height = 3023
-resize = 0.33
-image_width = int(org_image_width * resize)
-image_height = int(org_image_height * resize)
-print(f"  image_width: {image_width}, image_height: {image_height}")
-camera_focal_length = 26 * image_width / 7.03
-c_x = round(image_width / 2)
-c_y = round(image_height / 2)
-camera_matrix = np.array([[camera_focal_length, 0, c_x],
-                          [0, camera_focal_length, c_y],
-                          [0, 0, 1]])
-dist_coeffs = np.zeros((1, 5))
-
-# Load the apriltags.json file
-with open(json_path, 'r') as f:
-    apriltag_data = json.load(f)
-
 
 # main function
-def main():
+def run(image):
+    # parameters
+    print("======================================")
+    print(f"image: {image}")
+    image_path = f"images/{image}.jpg"
+    output_path4marked = f"images_marked/{image}_marked.jpg"
+    output_path4plot = f"images_plot/{image}_plot.jpg"
+    json_path = "apriltags.json"
+    real_tag_size = 0.1
+    target_tag_id = 3
+
+    # Calculate the center points
+    org_image_width = 4031
+    org_image_height = 3023
+    resize = 0.33
+    image_width = int(org_image_width * resize)
+    image_height = int(org_image_height * resize)
+    print(f"  image_width: {image_width}, image_height: {image_height}")
+    camera_focal_length = 26 * image_width / 7.03
+    c_x = round(image_width / 2)
+    c_y = round(image_height / 2)
+    camera_matrix = np.array([[camera_focal_length, 0, c_x],
+                            [0, camera_focal_length, c_y],
+                            [0, 0, 1]])
+    dist_coeffs = np.zeros((1, 5))
+
+    # Load the apriltags.json file
+    with open(json_path, 'r') as f:
+        apriltag_data = json.load(f)
     # Tag detection
-    detected_info = apriltag_detection_pnp.detect_and_mark_apriltags(image_path, apriltag_data)
-    if detected_info is None:
+    detected_info = apriltag_detection_pnp.detect_and_mark_apriltags(image_path, apriltag_data, output_path4marked)
+    if len(detected_info) == 0:
         print("No AprilTag detected.")
         return None
 
@@ -57,10 +57,16 @@ def main():
     print("======================================")
 
     # Plot
-    output_path = f"test_images/{image_number}_plot.jpg"
-    plot_room.plot_room(twoD_pose, target_tag_id, json_path, output_path)
+    output_path4plot = f"images_plot/{image}_plot.jpg"
+    plot_room.plot_room(twoD_pose, target_tag_id, json_path, output_path4plot)
 
     return 0
+
+def main():
+    images = ["0_left", "0_middle", "0_right", "1_left", "1_middle", "1_right", "2_left", "2_middle", "2_right", "3_left", "3_middle", "3_right"]
+    for image in images:
+        run(image)
+        print(" ")
 
 if __name__ == "__main__":
     main()
