@@ -94,9 +94,10 @@ def calculate_pose(apriltag_data, tag_id, detected_tag_info, camera_matrix, dist
             tag_real_x, tag_real_y, tag_real_z, tag_real_facing_angle = tag_real_position
 
             # Calculate the camera's position and yaw
-            camera_x = tag_real_x + distance * np.sin(np.deg2rad(pitch))
-            camera_y = tag_real_y + distance * np.cos(np.deg2rad(pitch))
             camera_yaw = tag_real_facing_angle - 180 - pitch - horizontal_angle_deg
+            camera_x = tag_real_x + distance * (np.sin(np.deg2rad(tag_real_facing_angle)) * np.sin(np.deg2rad(pitch)) + np.cos(np.deg2rad(tag_real_facing_angle)) * np.cos(np.deg2rad(pitch)))
+            camera_y = tag_real_y + distance * (np.sin(np.deg2rad(tag_real_facing_angle)) * np.cos(np.deg2rad(pitch)) - np.cos(np.deg2rad(tag_real_facing_angle)) * np.sin(np.deg2rad(pitch)))
+
             print("======================================")
             print(f"Camera Position: ({camera_x:.2f}, {camera_y:.2f})")
             print(f"Camera Angle: {camera_yaw:.2f} degrees")
