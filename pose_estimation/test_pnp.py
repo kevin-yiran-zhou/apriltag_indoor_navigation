@@ -1,17 +1,19 @@
 from src import apriltag_detection_pnp, calculate_pose_pnp, navigate, plot_room
 import numpy as np
 import json
+import os
 
 
 # main function
 def run(image):
     # parameters
     print("======================================")
+    script_dir = os.path.dirname(os.path.abspath(__file__))
     print(f"image: {image}")
-    image_path = f"images/{image}.jpg"
-    output_path4marked = f"images_marked/{image}_marked.jpg"
-    output_path4plot = f"images_plot/{image}_plot.jpg"
-    json_path = "apriltags.json"
+    image_path = os.path.join(script_dir, f"images/{image}.jpg")
+    output_path4marked = os.path.join(script_dir, f"images_marked/{image}_marked.jpg")
+    output_path4plot = os.path.join(script_dir, f"images_plot/{image}_plot.jpg")
+    json_path = os.path.join(script_dir, "apriltags.json")
     real_tag_size = 0.1
     target_tag_id = 3
 
@@ -57,7 +59,7 @@ def run(image):
     print("======================================")
 
     # Plot
-    output_path4plot = f"images_plot/{image}_plot.jpg"
+    output_path4plot = os.path.join(script_dir, f"images_plot/{image}_plot.jpg")
     plot_room.plot_room(twoD_pose, target_tag_id, json_path, output_path4plot)
 
     return 0
