@@ -86,7 +86,7 @@ class FloorplanApp:
         if not filepath:
             return
         self.image_path = filepath
-        self.image_name = os.path.basename(self.image_path).split('.')[0]
+        self.floor_name = os.path.basename(self.image_path).split('.')[0]
         self.image = cv2.imread(filepath)
         self.image = cv2.cvtColor(self.image, cv2.COLOR_BGR2RGB)
         
@@ -94,7 +94,7 @@ class FloorplanApp:
         self.original_width, self.original_height = self.image.shape[1], self.image.shape[0]
 
         # Check for corresponding JSON file
-        json_file = os.path.join(self.data_path, "maps", self.image_name + ".json")
+        json_file = os.path.join(self.data_path, "maps", self.floor_name + ".json")
         if os.path.exists(json_file):
             with open(json_file, "r") as f:
                 data = json.load(f)
@@ -110,7 +110,7 @@ class FloorplanApp:
             with open(dest_file, "r") as f:
                 all_destinations = json.load(f)
             # Load destinations for the current floor if available
-            self.destinations = {name: tuple(coords) for name, coords in all_destinations.get(self.image_name, {}).items()}
+            self.destinations = {name: tuple(coords) for name, coords in all_destinations.get(self.floor_name, {}).items()}
         else:
             self.destinations = {}
 
@@ -344,7 +344,7 @@ class FloorplanApp:
             os.makedirs(maps_dir)
 
         # Save floor-specific map data
-        output_file = os.path.join(maps_dir, f"{self.image_name}.json")
+        output_file = os.path.join(maps_dir, f"{self.floor_name}.json")
         
         # Format data for JSON serialization
         data = {
@@ -368,7 +368,7 @@ class FloorplanApp:
             all_destinations = {}
 
         # Update the destination data for the current floor
-        all_destinations[self.image_name] = {name: (int(x), int(y)) for name, (x, y) in self.destinations.items()}
+        all_destinations[self.floor_name] = {name: (int(x), int(y)) for name, (x, y) in self.destinations.items()}
         
         # Write updated destinations back to the file
         with open(dest_file, "w") as f:
