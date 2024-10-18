@@ -9,7 +9,7 @@ import os
 
 class FloorplanApp:
     def __init__(self, root):
-        self.script_path = os.path.dirname(os.path.abspath(__file__))
+        self.data_path = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), 'data')
         self.image_path = None
         self.file_path = None
 
@@ -81,11 +81,12 @@ class FloorplanApp:
 
 
     def load_image(self):
-        default_dir = os.path.join(self.script_path, "floorplans")
+        default_dir = os.path.join(self.data_path, "floorplans")
         filepath = filedialog.askopenfilename(initialdir=default_dir, filetypes=[("Image Files", "*.jpg *.jpeg *.png *.bmp")])
         if not filepath:
             return
         self.image_path = filepath
+        self.image_name = os.path.basename(self.image_path).split('.')[0]
         self.image = cv2.imread(filepath)
         self.image = cv2.cvtColor(self.image, cv2.COLOR_BGR2RGB)
         
@@ -93,17 +94,25 @@ class FloorplanApp:
         self.original_width, self.original_height = self.image.shape[1], self.image.shape[0]
 
         # Check for corresponding JSON file
-        json_file = os.path.join(self.script_path, "maps", os.path.basename(self.image_path).split('.')[0] + ".json")
+        json_file = os.path.join(self.data_path, "maps", self.image_name + ".json")
         if os.path.exists(json_file):
             with open(json_file, "r") as f:
                 data = json.load(f)
                 self.walls = [(tuple(wall[0]), tuple(wall[1])) for wall in data.get("walls", [])]
-                self.destinations = {name: tuple(coords) for name, coords in data.get("destinations", {}).items()}
                 self.waypoints = [tuple(waypoint) for waypoint in data.get("waypoints", [])]
-            print(f"Loaded data from {json_file}")
+            print(f"Loaded map from {json_file}")
         else:
             # No existing data, perform wall detection
             self.detect_walls()
+        
+        dest_file = os.path.join(self.data_path, "destinations.json")
+        if os.path.exists(dest_file):
+            with open(dest_file, "r") as f:
+                all_destinations = json.load(f)
+            # Load destinations for the current floor if available
+            self.destinations = {name: tuple(coords) for name, coords in all_destinations.get(self.image_name, {}).items()}
+        else:
+            self.destinations = {}
 
         self.update_canvas()
 
@@ -330,17 +339,16 @@ class FloorplanApp:
             return
 
         # Ensure the maps directory exists
-        maps_dir = os.path.join(self.script_path, "maps")
+        maps_dir = os.path.join(self.data_path, "maps")
         if not os.path.exists(maps_dir):
             os.makedirs(maps_dir)
 
         # Save floor-specific map data
-        image_name = os.path.basename(self.image_path).split('.')[0]
-        output_file = os.path.join(maps_dir, f"{image_name}.json")
+        output_file = os.path.join(maps_dir, f"{self.image_name}.json")
         
         # Format data for JSON serialization
         data = {
-            "destinations": {name: (int(x), int(y)) for name, (x, y) in self.destinations.items()},
+            # "destinations": {name: (int(x), int(y)) for name, (x, y) in self.destinations.items()},
             "waypoints": [(int(x), int(y)) for x, y in self.waypoints],
             "walls": [[(int(start[0]), int(start[1])), (int(end[0]), int(end[1]))] for start, end in self.walls]
         }
@@ -350,7 +358,7 @@ class FloorplanApp:
             json.dump(data, f, indent=4)
 
         # Save to the global destination file
-        dest_file = os.path.join(self.script_path, "destinations.json")
+        dest_file = os.path.join(self.data_path, "destinations.json")
         
         # Load existing destination data if the file exists
         if os.path.exists(dest_file):
@@ -360,13 +368,13 @@ class FloorplanApp:
             all_destinations = {}
 
         # Update the destination data for the current floor
-        all_destinations[image_name] = {name: (int(x), int(y)) for name, (x, y) in self.destinations.items()}
+        all_destinations[self.image_name] = {name: (int(x), int(y)) for name, (x, y) in self.destinations.items()}
         
         # Write updated destinations back to the file
         with open(dest_file, "w") as f:
             json.dump(all_destinations, f, indent=4)
 
-        messagebox.showinfo("Saved", f"Data saved in {output_file} and destinations updated in {dest_file}")
+        messagebox.showinfo("Saved", f"Map saved in {output_file}, destinations updated in {dest_file}")
 
 
 
