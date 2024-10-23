@@ -118,7 +118,7 @@ class PathfinderGUI:
             cv2.line(resized_image, (int(x1 * self.zoom_level), int(y1 * self.zoom_level)),
                      (int(x2 * self.zoom_level), int(y2 * self.zoom_level)), (255, 0, 0), 2)
 
-        # Draw destinations, highlighting the selected one in red
+        # Draw destinations
         for name, (x, y) in self.destinations.items():
             color = (0, 0, 255)  # Default blue color
             if self.selected_dest_point == name:
@@ -154,28 +154,23 @@ class PathfinderGUI:
         x = int((event.x - self.offset_x) / self.zoom_level)
         y = int((event.y - self.offset_y) / self.zoom_level)
 
-        # If no start pose, allow setting start pose
-        if self.start_pose is None:
-            self.start_pose = (x, y, 0)  # Default orientation is 0 degrees
-            self.is_dragging_pose = True  # Start dragging to adjust orientation
-        else:
-            # Select destination
-            selected = False
-            for name, (dx, dy) in self.destinations.items():
-                if abs(dx - x) < 10 and abs(dy - y) < 10:
-                    self.selected_dest_point = name  # Highlight selected destination
-                    print(f"Destination selected: {self.selected_dest_point}")
-                    selected = True
-                    break
+        # Check if a destination was clicked (within a certain range around the destination point)
+        for name, (dx, dy) in self.destinations.items():
+            if abs(dx - x) < 10 and abs(dy - y) < 10:
+                # Select the destination and make it red
+                self.selected_dest_point = name
+                print(f"Destination selected: {self.selected_dest_point}")
+                self.update_canvas()
+                return  # Exit the function if a destination is selected, no need to proceed with pose drawing
 
-            if not selected:
-                self.selected_dest_point = None  # Deselect if no destination selected
-
-        self.update_canvas()
+        # If no destination is selected, proceed with start pose
+        self.start_pose = (x, y, 0)  # Initialize the start pose with 0 degrees orientation
+        self.is_defining_pose = True  # Set flag to indicate we are defining the start pose
+        self.update_canvas()  # Update canvas to show the point without the arrow yet
 
     def on_drag(self, event):
-        # Adjust orientation based on dragging
-        if self.is_dragging_pose:
+        if self.is_defining_pose:
+            # Update orientation based on the drag movement
             x, y = int((event.x - self.offset_x) / self.zoom_level), int((event.y - self.offset_y) / self.zoom_level)
             start_x, start_y = self.start_pose[:2]
             angle = math.degrees(math.atan2(y - start_y, x - start_x))
@@ -183,11 +178,11 @@ class PathfinderGUI:
             self.update_canvas()
 
     def on_release(self, event):
-        if self.is_dragging_pose:
-            # Stop dragging, finalize start pose
-            self.is_dragging_pose = False
-
-        self.update_canvas()
+        if self.is_defining_pose:
+            # Finalize the start pose after the drag is released
+            self.is_defining_pose = False
+            print(f"Final start pose: {self.start_pose}")
+            self.update_canvas()
 
     def find_path(self):
         if self.start_pose is None or self.selected_dest_point is None:
@@ -202,6 +197,7 @@ class PathfinderGUI:
             messagebox.showwarning("Pathfinding Error", f"Error finding path: {e}")
             self.path = None
 
+        print(self.path)
         self.update_canvas()
 
 
