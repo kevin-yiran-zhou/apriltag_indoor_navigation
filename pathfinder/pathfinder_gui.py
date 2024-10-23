@@ -51,6 +51,9 @@ class PathfinderGUI:
         self.destinations = {}
         self.waypoints = []
 
+        self.selected_dest_point = None
+        self.is_defining_pose = False
+
         # Bindings for interactions
         self.canvas.bind("<Button-1>", self.on_click)
         self.canvas.bind("<B1-Motion>", self.on_drag)
@@ -115,9 +118,12 @@ class PathfinderGUI:
             cv2.line(resized_image, (int(x1 * self.zoom_level), int(y1 * self.zoom_level)),
                      (int(x2 * self.zoom_level), int(y2 * self.zoom_level)), (255, 0, 0), 2)
 
-        # Draw destinations
+        # Draw destinations, highlighting the selected one in red
         for name, (x, y) in self.destinations.items():
-            cv2.circle(resized_image, (int(x * self.zoom_level), int(y * self.zoom_level)), 5, (0, 0, 255), -1)
+            color = (0, 0, 255)  # Default blue color
+            if self.selected_dest_point == name:
+                color = (255, 0, 0)  # Selected destination is red
+            cv2.circle(resized_image, (int(x * self.zoom_level), int(y * self.zoom_level)), 5, color, -1)
             cv2.putText(resized_image, name, (int(x * self.zoom_level) + 8, int(y * self.zoom_level) - 8),
                         cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 0, 255), 1, cv2.LINE_AA)
 
@@ -148,46 +154,55 @@ class PathfinderGUI:
         x = int((event.x - self.offset_x) / self.zoom_level)
         y = int((event.y - self.offset_y) / self.zoom_level)
 
-        if self.start_pose is None:  # Select start pose
+        # If no start pose, allow setting start pose
+        if self.start_pose is None:
             self.start_pose = (x, y, 0)  # Default orientation is 0 degrees
-            print(f"Start pose set at: {self.start_pose}")
+            self.is_dragging_pose = True  # Start dragging to adjust orientation
         else:
             # Select destination
+            selected = False
             for name, (dx, dy) in self.destinations.items():
                 if abs(dx - x) < 10 and abs(dy - y) < 10:
-                    self.dest_point = name
-                    print(f"Destination selected: {self.dest_point}")
+                    self.selected_dest_point = name  # Highlight selected destination
+                    print(f"Destination selected: {self.selected_dest_point}")
+                    selected = True
                     break
+
+            if not selected:
+                self.selected_dest_point = None  # Deselect if no destination selected
 
         self.update_canvas()
 
     def on_drag(self, event):
-        if self.start_pose:
-            # Adjust orientation based on dragging
+        # Adjust orientation based on dragging
+        if self.is_dragging_pose:
             x, y = int((event.x - self.offset_x) / self.zoom_level), int((event.y - self.offset_y) / self.zoom_level)
             start_x, start_y = self.start_pose[:2]
             angle = math.degrees(math.atan2(y - start_y, x - start_x))
             self.start_pose = (start_x, start_y, angle)
-            print(f"Start orientation updated: {self.start_pose}")
             self.update_canvas()
 
     def on_release(self, event):
-        pass
+        if self.is_dragging_pose:
+            # Stop dragging, finalize start pose
+            self.is_dragging_pose = False
+
+        self.update_canvas()
 
     def find_path(self):
-        if self.start_pose is None or self.dest_point is None:
+        if self.start_pose is None or self.selected_dest_point is None:
             messagebox.showwarning("Missing Data", "Please select both a start point and a destination.")
             return
 
         # Call the pathfinding algorithm
         start_pose = (self.start_pose[0], self.start_pose[1], self.start_pose[2])
-        self.path = find_optimal_path(self.floor_name, start_pose, self.dest_point)
+        try:
+            self.path = find_optimal_path(self.floor_name, start_pose, self.selected_dest_point)
+        except Exception as e:
+            messagebox.showwarning("Pathfinding Error", f"Error finding path: {e}")
+            self.path = None
 
-        if self.path:
-            print("Path found!")
-            self.update_canvas()
-        else:
-            messagebox.showwarning("No Path", "No path could be found.")
+        self.update_canvas()
 
 
 if __name__ == "__main__":
