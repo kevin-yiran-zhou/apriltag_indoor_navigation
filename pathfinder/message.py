@@ -70,5 +70,6 @@ def generate_directions(user_pose, path):
 user_pose = (547, 328, 0)
 path = [(547, 328), (538, 203), (229, 209)]
 directions = generate_directions(user_pose, path)
+print("Directions:")
 for i, direction in enumerate(directions):
-    print(f"Step {i+1}: {direction}")
+    print(f"{direction}")
