@@ -1,35 +1,41 @@
 import numpy as np
 
-def angle_to_clock_direction(angle):
-    """
-    Converts an angle into a clock direction (12, 1, 2, ..., 12).
-    """
-    result = round(((angle + 15) % 360) / 30)
-    if result == 0:
-        result = 12
-    return result
+def message(angle, distance):
 
-def message(clock, distance):
-    """
-    Generates a directional message based on the clock direction and distance.
-    """
+    while angle <= -180:
+        angle += 360
+    while angle > 180:
+        angle -= 360
+
     distance = round(distance, 1)
-    if clock == 12:
+
+    if -15 <= angle < 15:
         return f"Go straight and walk {distance} meters."
-    elif clock in [1, 11]:
-        return f"Go straight and walk {distance} meters along {clock} o'clock."
-    elif clock in [2, 4]:
-        return f"Turn right to {clock} o'clock and walk {distance} meters."
-    elif clock == 3:
+    elif 15 <= angle < 45:
+        return f"Go straight and walk {distance} meters along 1 o'clock."
+    elif 45 <= angle < 75:
+        return f"Turn right to 2 o'clock and walk {distance} meters."
+    elif 75 <= angle < 105:
         return f"Turn right and walk {distance} meters."
-    elif clock in [5, 7]:
-        return f"Turn around to {clock} o'clock and walk {distance} meters."
-    elif clock == 6:
+    elif 105 <= angle < 135:
+        return f"Turn right to 4 o'clock and walk {distance} meters."
+    elif 135 <= angle < 165:
+        return f"Turn around to 5 o'clock and walk {distance} meters."
+    elif 165 <= angle <= 180 or -180 < angle <= -165:
         return f"Turn around and walk {distance} meters."
-    elif clock in [8, 10]:
-        return f"Turn left to {clock} o'clock and walk {distance} meters."
-    else:  # clock == 9
+    elif -165 < angle <= -135:
+        return f"Turn around to 7 o'clock and walk {distance} meters."
+    elif -135 < angle <= -105:
+        return f"Turn left to 8 o'clock and walk {distance} meters."
+    elif -105 < angle <= -75:
         return f"Turn left and walk {distance} meters."
+    elif -75 < angle <= -45:
+        return f"Turn left to 10 o'clock and walk {distance} meters."
+    elif -45 < angle <= -15:
+        return f"Go straight and walk {distance} meters along 11 o'clock."
+    else:
+        return f"Error: Angle {angle} not recognized."
+
 
 def generate_directions(user_pose, path, scale=1.0):
     messages = []
@@ -41,18 +47,14 @@ def generate_directions(user_pose, path, scale=1.0):
         direction_vector = next_point - current_pose
         angle_to_next_point = np.degrees(np.arctan2(direction_vector[1], direction_vector[0]))
 
-        # Adjust for the system where 0 degrees is to the right and angles increase clockwise.
         relative_angle = angle_to_next_point - current_orientation
-        distance_to_next_point = np.linalg.norm(direction_vector) * scale  # Apply the scale factor
-
-        # Get the clock direction
-        clock_direction = angle_to_clock_direction(relative_angle)
+        distance_to_next_point = np.linalg.norm(direction_vector) * scale
 
         # Create a message for the current step
         if i == 1:
-            step_message = message(clock_direction, distance_to_next_point)
+            step_message = message(relative_angle, distance_to_next_point)
         else:
-            step_message = "Then " + message(clock_direction, distance_to_next_point)
+            step_message = "Then " + message(relative_angle, distance_to_next_point)
         if i == len(path) - 1:
             step_message += " And you will reach your destination."
         messages.append(step_message)
