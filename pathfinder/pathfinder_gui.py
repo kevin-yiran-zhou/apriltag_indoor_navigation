@@ -6,6 +6,7 @@ import numpy as np
 import os
 import math
 from pathfinder import find_optimal_path
+from message import generate_directions
 import json
 
 class PathfinderGUI:
@@ -189,16 +190,19 @@ class PathfinderGUI:
             messagebox.showwarning("Missing Data", "Please select both a start point and a destination.")
             return
 
-        # Call the pathfinding algorithm
         start_pose = (self.start_pose[0], self.start_pose[1], self.start_pose[2])
         try:
             self.path = find_optimal_path(self.floor_name, start_pose, self.selected_dest_point)
         except Exception as e:
             messagebox.showwarning("Pathfinding Error", f"Error finding path: {e}")
             self.path = None
-
-        print(self.path)
+        
         self.update_canvas()
+
+        messages = generate_directions(start_pose, self.path, 0.1)
+        formatted_message = "\n".join(messages)
+        messagebox.showinfo("Path Found", formatted_message)
+        # messagebox.showinfo("Path Found", "path found")
 
 
 if __name__ == "__main__":
