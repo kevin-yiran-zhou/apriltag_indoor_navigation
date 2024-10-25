@@ -199,7 +199,7 @@ class PathfinderGUI:
         
         self.update_canvas()
 
-        messages = generate_directions(start_pose, self.path, 0.1)
+        messages = generate_directions(start_pose, self.path, 0.05)
         formatted_message = "\n".join(messages)
         messagebox.showinfo("Path Found", formatted_message)
 
