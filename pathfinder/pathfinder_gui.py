@@ -201,7 +201,8 @@ class PathfinderGUI:
 
         messages = generate_directions(start_pose, self.path, 0.1)
         formatted_message = "\n".join(messages)
-        messagebox.showinfo("Path Found", formatted_message)
+        # messagebox.showinfo("Path Found", formatted_message)
+        messagebox.showinfo("Path Found", "Path Found")
 
 
 if __name__ == "__main__":
