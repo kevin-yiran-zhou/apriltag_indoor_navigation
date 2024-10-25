@@ -182,7 +182,7 @@ class PathfinderGUI:
         if self.is_defining_pose:
             # Finalize the start pose after the drag is released
             self.is_defining_pose = False
-            print(f"Final start pose: {self.start_pose}")
+            print(f"Start pose: {self.start_pose}")
             self.update_canvas()
 
     def find_path(self):
@@ -201,8 +201,7 @@ class PathfinderGUI:
 
         messages = generate_directions(start_pose, self.path, 0.1)
         formatted_message = "\n".join(messages)
-        # messagebox.showinfo("Path Found", formatted_message)
-        messagebox.showinfo("Path Found", "Path Found")
+        messagebox.showinfo("Path Found", formatted_message)
 
 
 if __name__ == "__main__":

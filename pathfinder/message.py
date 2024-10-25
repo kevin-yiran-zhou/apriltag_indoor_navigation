@@ -47,7 +47,8 @@ def generate_directions(user_pose, path, scale=1.0):
         direction_vector = next_point - current_pose
         angle_to_next_point = np.degrees(np.arctan2(direction_vector[1], direction_vector[0]))
 
-        relative_angle = angle_to_next_point - current_orientation
+        # relative_angle = angle_to_next_point - current_orientation # correct
+        relative_angle = angle_to_next_point + current_orientation # incorrect
         distance_to_next_point = np.linalg.norm(direction_vector) * scale
 
         # Create a message for the current step

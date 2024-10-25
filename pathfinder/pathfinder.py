@@ -14,7 +14,7 @@ def load_map_data(floor_name):
             data = json.load(f)
             walls = [(tuple(wall[0]), tuple(wall[1])) for wall in data.get("walls", [])]
             waypoints = [tuple(waypoint) for waypoint in data.get("waypoints", [])]
-        print(f"Loaded map from {json_file}")
+        # print(f"Loaded map from {json_file}")
     else:
         print(f"Map file {json_file} not found.")
         return
@@ -114,9 +114,7 @@ def find_optimal_path(floor_name, start_pose, end_point):
     start_point = (start_pose[0], start_pose[1])
     
     # Build the graph
-    print("Building graph...")
     graph = build_graph(waypoints, walls, start_point, end_point)
-    print("Graph built.")
     
     # Check if start and end points are connected to the graph
     if start_point not in graph or end_point not in graph:
@@ -124,24 +122,6 @@ def find_optimal_path(floor_name, start_pose, end_point):
         return None
     
     # Find the path using A*
-    print("Finding optimal path...")
     path = a_star_search(graph, start_point, end_point)
-    print("Optimal path found.")
     
     return path
-
-
-# Example usage
-if __name__ == "__main__":
-    data_path = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), 'data')
-    floor_name = "basic-floor-plan"
-    start_pose = (543, 149, 0)  # x, y, angle in degrees
-    end_point = "Bedroom 1"  # Destination name or (x, y) coordinates
-    
-    path = find_optimal_path(floor_name, start_pose, end_point)
-    if path:
-        print("Optimal path:")
-        for point in path:
-            print(point)
-    else:
-        print("No path found.")
