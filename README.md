@@ -19,7 +19,7 @@ This tool generates JSON-based map files, used by the pathfinding component.
 - Input: User's initial pose and target destination.
 - Output: A list of waypoints representing the path and navigation messages to guide the user along the route.
 
-## 4. Android App Development - In Progress
+## 4. Android App Development - Pending
 Developing an Android app for real-time navigation assistance, integrating camera-based pose estimation and interactive UI for user navigation.
 
 ## 5. IMU Integration - Pending
