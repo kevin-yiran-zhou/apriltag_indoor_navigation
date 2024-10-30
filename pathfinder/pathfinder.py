@@ -105,7 +105,7 @@ def find_optimal_path(floor_name, start_pose, end_point):
     
     # If the end point is a destination name, get its coordinates
     if isinstance(end_point, str) and end_point in destinations:
-        end_point = destinations[end_point]
+        end_point = destinations[end_point][:2]
     elif isinstance(end_point, tuple):
         pass  # Use the provided coordinates
     else:

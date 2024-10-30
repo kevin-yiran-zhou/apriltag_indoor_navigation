@@ -53,6 +53,7 @@ class PathfinderGUI:
         self.waypoints = []
 
         self.selected_dest_point = None
+        self.selected_dest_angle = None
         self.is_defining_pose = False
 
         # Bindings for interactions
@@ -120,13 +121,17 @@ class PathfinderGUI:
                      (int(x2 * self.zoom_level), int(y2 * self.zoom_level)), (255, 0, 0), 2)
 
         # Draw destinations
-        for name, (x, y) in self.destinations.items():
+        for name, (x, y, orientation) in self.destinations.items():
             color = (0, 0, 255)  # Default blue color
             if self.selected_dest_point == name:
                 color = (255, 0, 0)  # Selected destination is red
             cv2.circle(resized_image, (int(x * self.zoom_level), int(y * self.zoom_level)), 5, color, -1)
             cv2.putText(resized_image, name, (int(x * self.zoom_level) + 8, int(y * self.zoom_level) - 8),
                         cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 0, 255), 1, cv2.LINE_AA)
+            end_x = x + 20 * math.cos(math.radians(orientation))
+            end_y = y + 20 * math.sin(math.radians(orientation))
+            cv2.arrowedLine(resized_image, (int(x * self.zoom_level), int(y * self.zoom_level)),
+                            (int(end_x * self.zoom_level), int(end_y * self.zoom_level)), color, 2)
 
         # Draw the starting point with an orientation arrow if defined
         if self.start_pose:
@@ -156,11 +161,12 @@ class PathfinderGUI:
         y = int((event.y - self.offset_y) / self.zoom_level)
 
         # Check if a destination was clicked (within a certain range around the destination point)
-        for name, (dx, dy) in self.destinations.items():
+        for name, (dx, dy, angle) in self.destinations.items():
             if abs(dx - x) < 10 and abs(dy - y) < 10:
                 # Select the destination and make it red
                 self.selected_dest_point = name
                 print(f"Destination selected: {self.selected_dest_point}")
+                self.selected_dest_angle = angle
                 self.update_canvas()
                 return  # Exit the function if a destination is selected, no need to proceed with pose drawing
 
@@ -199,7 +205,7 @@ class PathfinderGUI:
         
         self.update_canvas()
 
-        messages = generate_directions(start_pose, self.path, 0.05)
+        messages = generate_directions(start_pose, self.path, self.selected_dest_angle, 0.05)
         formatted_message = "\n".join(messages)
         messagebox.showinfo("Path Found", formatted_message)
 

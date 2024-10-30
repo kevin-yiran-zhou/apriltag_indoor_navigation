@@ -37,7 +37,42 @@ def message(angle, distance):
         return f"Error: Angle {angle} not recognized."
 
 
-def generate_directions(user_pose, path, scale=1.0):
+def direction(angle):
+
+    while angle <= -180:
+        angle += 360
+    while angle > 180:
+        angle -= 360
+
+    if -15 <= angle < 15:
+        return f"in front of you"
+    elif 15 <= angle < 45:
+        return f"in front of you at 1 o'clock"
+    elif 45 <= angle < 75:
+        return f"on your right at 2 o'clock"
+    elif 75 <= angle < 105:
+        return f"on your right"
+    elif 105 <= angle < 135:
+        return f"on your right at 4 o'clock"
+    elif 135 <= angle < 165:
+        return f"behind you at 5 o'clock"
+    elif 165 <= angle <= 180 or -180 < angle <= -165:
+        return f"behind you"
+    elif -165 < angle <= -135:
+        return f"behind you at 7 o'clock"
+    elif -135 < angle <= -105:
+        return f"on your left at 8 o'clock"
+    elif -105 < angle <= -75:
+        return f"on your left"
+    elif -75 < angle <= -45:
+        return f"on your left at 10 o'clock"
+    elif -45 < angle <= -15:
+        return f"in front of you at 11 o'clock."
+    else:
+        return f"Error: Angle {angle} not recognized."
+
+
+def generate_directions(user_pose, path, destination_angle, scale=1.0):
     messages = []
     current_pose = np.array(user_pose[:2])
     current_orientation = user_pose[2]
@@ -56,7 +91,9 @@ def generate_directions(user_pose, path, scale=1.0):
         else:
             step_message = "Then " + message(relative_angle, distance_to_next_point)
         if i == len(path) - 1:
-            step_message += " And you will reach your destination."
+            last_angle = destination_angle - current_orientation
+            last_direction = direction(last_angle)
+            step_message += f" And the destination will be {last_direction}."
         messages.append(step_message)
 
         # Update the current pose and orientation for the next step

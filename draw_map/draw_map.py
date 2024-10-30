@@ -5,6 +5,7 @@ from PIL import Image, ImageTk
 import numpy as np
 import json
 import os
+import math
 
 
 class FloorplanApp:
@@ -72,6 +73,7 @@ class FloorplanApp:
         self.destinations = {}
         self.waypoints = []
         self.hover_target = None  # Track hovered waypoint or destination
+        self.temp_dest_coords = None  # Temporary destination coordinates
 
         # Bindings for panning and interactions
         self.canvas.bind("<Button-1>", self.on_click)
@@ -145,17 +147,31 @@ class FloorplanApp:
         zoomed_height = int(self.original_height * self.zoom_level)
         resized_image = cv2.resize(self.image, (zoomed_width, zoomed_height), interpolation=cv2.INTER_LINEAR)
         
-        # Draw walls, destinations, and waypoints
         for ((x1, y1), (x2, y2)) in self.walls:
             cv2.line(resized_image, (int(x1 * self.zoom_level), int(y1 * self.zoom_level)),
                      (int(x2 * self.zoom_level), int(y2 * self.zoom_level)), (255, 0, 0), 2)
         
-        for name, (x, y) in self.destinations.items():
+        for name, (x, y, orientation) in self.destinations.items():
             color = (0, 0, 255) if (name, "dest") != self.hover_target else (255, 0, 0)
             cv2.circle(resized_image, (int(x * self.zoom_level), int(y * self.zoom_level)), 5, color, -1)
             cv2.putText(resized_image, name, (int(x * self.zoom_level) + 8, int(y * self.zoom_level) - 8),
                         cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 0, 255), 1, cv2.LINE_AA)
-        
+            end_x = x + 20 * math.cos(math.radians(orientation))
+            end_y = y + 20 * math.sin(math.radians(orientation))
+            cv2.arrowedLine(resized_image, (int(x * self.zoom_level), int(y * self.zoom_level)),
+                            (int(end_x * self.zoom_level), int(end_y * self.zoom_level)), color, 2)
+
+        if self.temp_dest_coords:
+            x, y, orientation = self.temp_dest_coords
+            temp_color = (0, 255, 0)
+            cv2.circle(resized_image, (int(x * self.zoom_level), int(y * self.zoom_level)), 5, temp_color, -1)
+            cv2.putText(resized_image, "Temp", (int(x * self.zoom_level) + 8, int(y * self.zoom_level) - 8),
+                        cv2.FONT_HERSHEY_SIMPLEX, 0.5, temp_color, 1, cv2.LINE_AA)
+            end_x = x + 20 * math.cos(math.radians(orientation))
+            end_y = y + 20 * math.sin(math.radians(orientation))
+            cv2.arrowedLine(resized_image, (int(x * self.zoom_level), int(y * self.zoom_level)),
+                            (int(end_x * self.zoom_level), int(end_y * self.zoom_level)), temp_color, 2)
+
         for idx, (x, y) in enumerate(self.waypoints):
             color = (0, 255, 0) if (idx, "waypoint") != self.hover_target else (255, 0, 0)
             cv2.circle(resized_image, (int(x * self.zoom_level), int(y * self.zoom_level)), 5, color, -1)
@@ -198,9 +214,7 @@ class FloorplanApp:
                 if messagebox.askyesno("Delete Destination", f"Do you want to delete destination '{name}'?"):
                     del self.destinations[name]
             else:
-                name = simpledialog.askstring("Input", "Destination Name:")
-                if name:
-                    self.destinations[name] = (x, y)
+                self.temp_dest_coords = (x, y, 0)
             self.update_canvas()
         elif self.mode == "add_remove_waypoint":
             if self.hover_target and self.hover_target[1] == "waypoint":
@@ -230,6 +244,11 @@ class FloorplanApp:
                                          x * self.zoom_level + self.offset_x,
                                          y * self.zoom_level + self.offset_y,
                                          outline="red")
+        elif self.mode == "add_remove_dest" and self.temp_dest_coords:
+            start_x, start_y = self.temp_dest_coords[:2]
+            angle = math.degrees(math.atan2(event.y - start_y, event.x - start_x))
+            self.temp_dest_coords = (start_x, start_y, angle)
+            self.update_canvas()
 
 
     def on_release(self, event):
@@ -244,6 +263,12 @@ class FloorplanApp:
             self.walls.append((self.line_start, (x, y)))
             self.line_start = None
             self.update_canvas()
+        elif self.mode == "add_remove_dest" and self.temp_dest_coords:
+            name = simpledialog.askstring("Input", "Destination Name:")
+            if name:
+                self.destinations[name] = self.temp_dest_coords
+            self.temp_dest_coords = None
+            self.update_canvas()
 
 
     def on_mouse_move(self, event):
@@ -251,7 +276,7 @@ class FloorplanApp:
         y = int((event.y - self.offset_y) / self.zoom_level)
         self.hover_target = None  # Reset hover
 
-        for name, (dx, dy) in self.destinations.items():
+        for name, (dx, dy, angle) in self.destinations.items():
             if abs(dx - x) < 10 and abs(dy - y) < 10:
                 self.hover_target = (name, "dest")
                 break
