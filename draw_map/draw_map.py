@@ -402,8 +402,6 @@ class FloorplanApp:
         messagebox.showinfo("Saved", f"Map saved in {output_file}, destinations updated in {dest_file}")
 
 
-
-
 if __name__ == "__main__":
     root = tk.Tk()
     app = FloorplanApp(root)

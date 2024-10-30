@@ -101,9 +101,3 @@ def generate_directions(user_pose, path, destination_angle, scale=1.0):
         current_orientation = angle_to_next_point
 
     return messages
-
-
-# Test the function
-user_pose = (547, 381, -90)
-path = [(547, 381), (540, 263), (538, 203), (229, 209)]
-directions = generate_directions(user_pose, path, 0.1)
