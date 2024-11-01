@@ -91,7 +91,7 @@ def generate_directions(user_pose, path, destination_angle, scale=1.0):
         else:
             step_message = "Then " + message(relative_angle, distance_to_next_point)
         if i == len(path) - 1:
-            last_angle = destination_angle - current_orientation
+            last_angle = destination_angle - angle_to_next_point
             last_direction = direction(last_angle)
             step_message += f" And the destination will be {last_direction}."
         messages.append(step_message)

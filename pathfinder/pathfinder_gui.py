@@ -205,7 +205,7 @@ class PathfinderGUI:
         
         self.update_canvas()
 
-        messages = generate_directions(start_pose, self.path, self.selected_dest_angle, 0.05)
+        messages = generate_directions(start_pose, self.path, self.selected_dest_angle, 0.025)
         formatted_message = "\n".join(messages)
         messagebox.showinfo("Path Found", formatted_message)
 
