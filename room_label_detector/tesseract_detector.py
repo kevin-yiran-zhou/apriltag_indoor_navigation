@@ -46,6 +46,6 @@ def detect_labels(image_path, resize_width=800):
     return labels
 
 # Provide the path to your image here
-image_path = "/home/kevinbee/Desktop/apriltag_indoor_navigation/room_label_detector/images/1.JPG"
+image_path = "/home/kevinbee/Desktop/apriltag_indoor_navigation/room_label_detector/images/3.JPG"
 detected_labels = detect_labels(image_path, 1600)
 print(f"Detected {len(detected_labels)} labels.")
