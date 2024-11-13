@@ -2,9 +2,22 @@ import cv2
 import numpy as np
 import pytesseract
 from PIL import Image, ImageEnhance, ImageFilter
+import time
+
+
+def reorder_corners(corners):
+    top_right, top_left, bottom_left, bottom_right = corners
+    points = np.array([top_right, top_left, bottom_left, bottom_right])
+    y_sorted = points[np.argsort(points[:, 1])]
+    top_points = y_sorted[:2]
+    bottom_points = y_sorted[2:]
+    top_left, top_right = top_points[np.argsort(top_points[:, 0])]
+    bottom_left, bottom_right = bottom_points[np.argsort(bottom_points[:, 0])]
+    return np.array([top_right, top_left, bottom_left, bottom_right])
+
 
 def detect_number(image, corners):
-    top_right, top_left, bottom_left, bottom_right = corners
+    top_right, top_left, bottom_left, bottom_right = reorder_corners(corners)
 
     width = max(np.linalg.norm(np.array(top_right) - np.array(top_left)),
                 np.linalg.norm(np.array(bottom_right) - np.array(bottom_left)))
@@ -22,6 +35,7 @@ def detect_number(image, corners):
     
     matrix = cv2.getPerspectiveTransform(src_points, dst_points)
     warped = cv2.warpPerspective(image, matrix, (int(width), int(height)))
+    # cv2.imshow('Warped Image', warped)
 
     # OCR
     image = Image.fromarray(warped)
@@ -40,6 +54,7 @@ def detect_number(image, corners):
 
 
 def detect_room_label(image, resize_factor=5, area_threshold=100, approx_tolerance=0.1):
+    start_time = time.time()
     # Resize the image
     image = cv2.resize(image, (image.shape[1] // resize_factor, image.shape[0] // resize_factor))
     
@@ -82,13 +97,26 @@ def detect_room_label(image, resize_factor=5, area_threshold=100, approx_toleran
                     cv2.putText(image, OCR_result, tuple(corners[0]), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 0, 255), 2)
                     the_corners = corners
                     the_number = OCR_result
-                    # break
+                else:
+                    cv2.drawContours(image, [approx], -1, (0, 0, 255), 3)
+                    cv2.putText(image, "No valid text", tuple(corners[0]), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 0, 255), 2)
     
+    print("Time taken:", time.time() - start_time)
     cv2.imshow('Rectangles Detected', image)
-    cv2.waitKey(20000)
+    while cv2.getWindowProperty('Rectangles Detected', cv2.WND_PROP_VISIBLE) >= 1:
+        key = cv2.waitKey(1)
+        if key == 27:
+            break
     cv2.destroyAllWindows()
 
     return the_corners, the_number
 
+
 image = cv2.imread("/home/kevinbee/Desktop/apriltag_indoor_navigation/room_label_detector/images/office.JPG")
+corners, number = detect_room_label(image, resize_factor=4, area_threshold=500, approx_tolerance=0.05)
+
+image = cv2.imread("/home/kevinbee/Desktop/apriltag_indoor_navigation/room_label_detector/images/office_rotated.JPG")
+corners, number = detect_room_label(image, resize_factor=4, area_threshold=500, approx_tolerance=0.05)
+
+image = cv2.imread("/home/kevinbee/Desktop/apriltag_indoor_navigation/room_label_detector/images/office_different_angle.JPG")
 corners, number = detect_room_label(image, resize_factor=4, area_threshold=500, approx_tolerance=0.05)
