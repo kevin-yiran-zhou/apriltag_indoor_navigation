@@ -3,9 +3,8 @@ import apriltag
 import json
 import os
 
-def detect_and_mark_apriltags(image_path, apriltag_data, output_path):
+def detect_and_mark_apriltags(image, apriltag_data): # , output_path):
     # Load the image
-    image = cv2.imread(image_path)
     gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
 
     # Create a dictionary for quick lookup by tag ID
@@ -58,8 +57,8 @@ def detect_and_mark_apriltags(image_path, apriltag_data, output_path):
             print(f"  Center: {detected_tag_info[0]['center']}")
             print(f"  Corners: {detected_tag_info[0]['corners']}")
 
-    # Save the image with marked AprilTags
-    cv2.imwrite(output_path, image)
+    # # Save the image with marked AprilTags
+    # cv2.imwrite(output_path, image)
 
     # Return the list of detected tags with their corners, center, and pose (translation and rotation)
-    return detected_tag_info
+    return detected_tag_info, image
