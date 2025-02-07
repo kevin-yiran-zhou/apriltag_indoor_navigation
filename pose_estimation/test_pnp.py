@@ -78,10 +78,10 @@ def run(image):
     print(f"image input type: {type(image)}")
     # convert
     python_bytes = bytes(image)
-    np_array = np.frombuffer(python_bytes, dtype=np.uint8)
+    yuv_data = np.frombuffer(python_bytes, dtype=np.uint8)
     # print(np_array.flatten()[0:10])
     # Reshape to YUV420 format
-    yuv_frame = np_array.reshape((360, 320))  # OpenCV expects interleaved format
+    yuv_frame = yuv_data.reshape((360, 320))  # OpenCV expects interleaved format
     # Convert YUV to BGR
     bgr_image = cv2.cvtColor(yuv_frame, cv2.COLOR_YUV2BGR_I420)
     print(f"image input type after conversion: {type(bgr_image)}")
@@ -113,7 +113,7 @@ def run(image):
     with open(json_path, 'r') as f:
         apriltag_data = json.load(f)
     # Tag detection
-    detected_info, image = apriltag_detection_pnp.detect_and_mark_apriltags(image, apriltag_data) # , output_path4marked)
+    detected_info, image = apriltag_detection_pnp.detect_and_mark_apriltags(bgr_image, apriltag_data) # , output_path4marked)
     print(3)
     if len(detected_info) == 0:
         print("No AprilTag detected.")
