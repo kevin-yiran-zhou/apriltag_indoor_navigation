@@ -71,7 +71,7 @@ import cv2
 # main function
 def run(image):
     # parameters
-    # print("======================================")
+    print("======================================")
     script_dir = os.path.dirname(os.path.abspath(__file__))
     # print(f"image: {image}")
     # image_path = os.path.join(script_dir, f"images/{image}.jpg")

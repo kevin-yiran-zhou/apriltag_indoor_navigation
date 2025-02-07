@@ -75,7 +75,7 @@ def calculate_pose(apriltag_data, tag_id, detected_tag_info, camera_matrix, dist
             # print(f"  Roll: {roll:.2f} degrees, Pitch: {pitch:.2f} degrees, Yaw: {yaw:.2f} degrees")
 
             # Calculate the distance to the tag
-            print("======================================")
+            # print("======================================")
             tvec_resized = tvec * resize
             # print(f"resized tvec: {tvec_resized}")
             t_x = tvec_resized[0][0]
@@ -87,7 +87,7 @@ def calculate_pose(apriltag_data, tag_id, detected_tag_info, camera_matrix, dist
             # Calculate the angle of the tag from the camera
             horizontal_angle_rad = np.arctan2(t_x, t_z)
             horizontal_angle_deg = np.degrees(horizontal_angle_rad)
-            print(f"Horizontal Angle: {horizontal_angle_deg:.2f} degrees")
+            # print(f"Horizontal Angle: {horizontal_angle_deg:.2f} degrees")
 
             # Get the tag's real-world position and yaw (from apriltag_data)
             tag_real_position = apriltag_data["apriltags"][tag_id]["position"]
