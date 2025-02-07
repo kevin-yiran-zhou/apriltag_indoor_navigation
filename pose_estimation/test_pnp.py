@@ -95,46 +95,44 @@ def run(image):
     rgb_image = cv2.cvtColor(bgr_image, cv2.COLOR_BGR2RGB)
     print(5)
     print(f"image input type after conversion: {type(rgb_image)}")
-    # # print(f"image input size: {image.shape()}")
-    # # print(f"image: {image[0]}")
 
-    # # image = cv2.imread(image)
-    # # output_path4marked = os.path.join(script_dir, f"images_marked/{image}_marked.jpg")
-    # # output_path4plot = os.path.join(script_dir, f"images_plot/{image}_plot.jpg")
-    # json_path = os.path.join(script_dir, "apriltags.json")
-    # real_tag_size = 0.1
-    # # target_tag_id = 3
+    # image = cv2.imread(image)
+    # output_path4marked = os.path.join(script_dir, f"images_marked/{image}_marked.jpg")
+    # output_path4plot = os.path.join(script_dir, f"images_plot/{image}_plot.jpg")
+    json_path = os.path.join(script_dir, "apriltags.json")
+    real_tag_size = 0.1
+    # target_tag_id = 3
 
-    # # Calculate the center points
-    # org_image_width = 320
-    # org_image_height = 240
-    # resize = 1
-    # image_width = int(org_image_width * resize)
-    # image_height = int(org_image_height * resize)
-    # print(f"  image_width: {image_width}, image_height: {image_height}")
-    # camera_focal_length = 26 * image_width / 7.03
-    # c_x = round(image_width / 2)
-    # c_y = round(image_height / 2)
-    # camera_matrix = np.array([[camera_focal_length, 0, c_x],
-    #                         [0, camera_focal_length, c_y],
-    #                         [0, 0, 1]])
-    # dist_coeffs = np.zeros((1, 5))
+    # Calculate the center points
+    org_image_width = 320
+    org_image_height = 240
+    resize = 1
+    image_width = int(org_image_width * resize)
+    image_height = int(org_image_height * resize)
+    print(f"  image_width: {image_width}, image_height: {image_height}")
+    camera_focal_length = 26 * image_width / 7.03
+    c_x = round(image_width / 2)
+    c_y = round(image_height / 2)
+    camera_matrix = np.array([[camera_focal_length, 0, c_x],
+                            [0, camera_focal_length, c_y],
+                            [0, 0, 1]])
+    dist_coeffs = np.zeros((1, 5))
 
-    # # Load the apriltags.json file
-    # with open(json_path, 'r') as f:
-    #     apriltag_data = json.load(f)
-    # # Tag detection
-    # detected_info, image = apriltag_detection_pnp.detect_and_mark_apriltags(image, apriltag_data) # , output_path4marked)
-    # if len(detected_info) == 0:
-    #     print("No AprilTag detected.")
-    #     return None
+    # Load the apriltags.json file
+    with open(json_path, 'r') as f:
+        apriltag_data = json.load(f)
+    # Tag detection
+    detected_info, image = apriltag_detection_pnp.detect_and_mark_apriltags(image, apriltag_data) # , output_path4marked)
+    if len(detected_info) == 0:
+        print("No AprilTag detected.")
+        return None
 
-    # # Extract the first detected tag's pose (translation and rotation)
-    # tag_id = detected_info[0]["id"]
-    # pose = calculate_pose_pnp.calculate_pose(apriltag_data, tag_id, detected_info, camera_matrix, dist_coeffs, real_tag_size, resize)
-    # if pose is None:
-    #     print(f"No pose found for tag ID {tag_id}")
-    #     return None
+    # Extract the first detected tag's pose (translation and rotation)
+    tag_id = detected_info[0]["id"]
+    pose = calculate_pose_pnp.calculate_pose(apriltag_data, tag_id, detected_info, camera_matrix, dist_coeffs, real_tag_size, resize)
+    if pose is None:
+        print(f"No pose found for tag ID {tag_id}")
+        return None
 
     # # # Navigation
     # # twoD_pose = [pose["x"], pose["y"], pose["yaw"]]
