@@ -69,7 +69,7 @@ import cv2
 
 
 # main function
-def run(image):
+def run(image, target_tag_id):
     # parameters
     print("======================================")
     script_dir = os.path.dirname(os.path.abspath(__file__))
@@ -92,20 +92,24 @@ def run(image):
     # output_path4plot = os.path.join(script_dir, f"images_plot/{image}_plot.jpg")
     json_path = os.path.join(script_dir, "apriltags.json")
     real_tag_size = 0.1
-    # target_tag_id = 3
 
-    # Calculate the center points
+    # Calculate the camera matrix
     org_image_width = 320
     org_image_height = 240
     resize = 1
     image_width = int(org_image_width * resize)
     image_height = int(org_image_height * resize)
     # print(f"image_width: {image_width}, image_height: {image_height}")
-    camera_focal_length = 26 * image_width / 7.03
-    c_x = round(image_width / 2)
-    c_y = round(image_height / 2)
-    camera_matrix = np.array([[camera_focal_length, 0, c_x],
-                            [0, camera_focal_length, c_y],
+    # iPhone 12 Pro Max
+    # camera_focal_length = 26 * image_width / 7.03
+    # c_x = round(image_width / 2)
+    # c_y = round(image_height / 2)
+    # camera_matrix = np.array([[camera_focal_length, 0, c_x],
+    #                         [0, camera_focal_length, c_y],
+    #                         [0, 0, 1]])
+    # Glasses Camera
+    camera_matrix = np.array([[277, 0, 160],
+                            [0, 277, 0.5],
                             [0, 0, 1]])
     dist_coeffs = np.zeros((1, 5))
 
@@ -139,12 +143,13 @@ def run(image):
     # # output_path4plot = os.path.join(script_dir, f"images_plot/{image}_plot.jpg")
     # # plot_room.plot_room(twoD_pose, target_tag_id, json_path, output_path4plot)
 
+    # return ["left"/"right"/"done", angle]
     return 0
 
 def main():
     images = ["0_left"] # , "0_middle", "0_right", "1_left", "1_middle", "1_right", "2_left", "2_middle", "2_right", "3_left", "3_middle", "3_right"]
     for image in images:
-        run(image)
+        run(image, 3)
         print(" ")
 
 if __name__ == "__main__":
