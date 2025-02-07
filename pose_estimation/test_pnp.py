@@ -83,6 +83,7 @@ def run(image):
     print(2)
     print(type(np_array))
     print(np_array.shape())
+    print(np_array.flatten()[0:10])
     image = cv2.imdecode(np_array, cv2.IMREAD_COLOR)
     print(f"image input type after conversion: {type(image)}")
     # print(f"image input size: {image.shape()}")
