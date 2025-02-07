@@ -84,9 +84,7 @@ def run(image):
     yuv_frame = np_array.reshape((360, 320))  # OpenCV expects interleaved format
     # Convert YUV to BGR
     bgr_image = cv2.cvtColor(yuv_frame, cv2.COLOR_YUV2BGR_I420)
-    # Convert to RGB if needed
-    rgb_image = cv2.cvtColor(bgr_image, cv2.COLOR_BGR2RGB)
-    print(f"image input type after conversion: {type(rgb_image)}")
+    print(f"image input type after conversion: {type(bgr_image)}")
     print("conversion done")
 
     # image = cv2.imread(image)
