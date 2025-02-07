@@ -75,10 +75,14 @@ def run(image):
     # print(f"image: {image}")
     # image_path = os.path.join(script_dir, f"images/{image}.jpg")
     print(f"image input type: {type(image)}")
+    # convert
+    python_bytes = bytes(image)
+    np_array = np.frombuffer(python_bytes, dtype=np.uint8)
+    image = cv2.imdecode(np_array, cv2.IMREAD_COLOR)
     print(f"image input size: {image.shape()}")
     print(f"image: {image[0]}")
 
-    image = cv2.imread(image)
+    # image = cv2.imread(image)
     # output_path4marked = os.path.join(script_dir, f"images_marked/{image}_marked.jpg")
     # output_path4plot = os.path.join(script_dir, f"images_plot/{image}_plot.jpg")
     json_path = os.path.join(script_dir, "apriltags.json")
