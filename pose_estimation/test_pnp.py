@@ -75,26 +75,19 @@ def run(image):
     script_dir = os.path.dirname(os.path.abspath(__file__))
     # print(f"image: {image}")
     # image_path = os.path.join(script_dir, f"images/{image}.jpg")
-    print(1)
     print(f"image input type: {type(image)}")
     # convert
     python_bytes = bytes(image)
     np_array = np.frombuffer(python_bytes, dtype=np.uint8)
-    print(2)
-    print(type(np_array))
-    print(np_array.shape)
     # print(np_array.flatten()[0:10])
     # Reshape to YUV420 format
     yuv_frame = np_array.reshape((360, 320))  # OpenCV expects interleaved format
-    print(3)
-    print(yuv_frame.shape)
     # Convert YUV to BGR
     bgr_image = cv2.cvtColor(yuv_frame, cv2.COLOR_YUV2BGR_I420)
-    print(4)
     # Convert to RGB if needed
     rgb_image = cv2.cvtColor(bgr_image, cv2.COLOR_BGR2RGB)
-    print(5)
     print(f"image input type after conversion: {type(rgb_image)}")
+    print("conversion done")
 
     # image = cv2.imread(image)
     # output_path4marked = os.path.join(script_dir, f"images_marked/{image}_marked.jpg")
@@ -119,10 +112,13 @@ def run(image):
     dist_coeffs = np.zeros((1, 5))
 
     # Load the apriltags.json file
+    print(1)
     with open(json_path, 'r') as f:
         apriltag_data = json.load(f)
     # Tag detection
+    print(2)
     detected_info, image = apriltag_detection_pnp.detect_and_mark_apriltags(image, apriltag_data) # , output_path4marked)
+    print(3)
     if len(detected_info) == 0:
         print("No AprilTag detected.")
         return None
