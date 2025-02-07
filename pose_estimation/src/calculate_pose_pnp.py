@@ -67,17 +67,17 @@ def calculate_pose(apriltag_data, tag_id, detected_tag_info, camera_matrix, dist
             # Calculate translation and rotation using solvePnP
             rvec, tvec, success = pnp(tag_corners, camera_matrix, dist_coeffs, tag_size)
             if not success:
-                print(f"Failed to calculate pose for tag ID {tag_id}")
+                # print(f"Failed to calculate pose for tag ID {tag_id}")
                 return None
             
             # Convert rotation vector to Euler angles (yaw, pitch, roll)
             roll, pitch, yaw = rvec_to_euler_angles(rvec)
-            print(f"  Roll: {roll:.2f} degrees, Pitch: {pitch:.2f} degrees, Yaw: {yaw:.2f} degrees")
+            # print(f"  Roll: {roll:.2f} degrees, Pitch: {pitch:.2f} degrees, Yaw: {yaw:.2f} degrees")
 
             # Calculate the distance to the tag
             print("======================================")
             tvec_resized = tvec * resize
-            print(f"resized tvec: {tvec_resized}")
+            # print(f"resized tvec: {tvec_resized}")
             t_x = tvec_resized[0][0]
             t_y = tvec_resized[1][0]
             t_z = tvec_resized[2][0]
@@ -98,9 +98,9 @@ def calculate_pose(apriltag_data, tag_id, detected_tag_info, camera_matrix, dist
             camera_x = tag_real_x + distance * (np.sin(np.deg2rad(tag_real_facing_angle)) * np.sin(np.deg2rad(pitch)) + np.cos(np.deg2rad(tag_real_facing_angle)) * np.cos(np.deg2rad(pitch)))
             camera_y = tag_real_y + distance * (np.sin(np.deg2rad(tag_real_facing_angle)) * np.cos(np.deg2rad(pitch)) - np.cos(np.deg2rad(tag_real_facing_angle)) * np.sin(np.deg2rad(pitch)))
 
-            print("======================================")
-            print(f"Camera Position: ({camera_x:.2f}, {camera_y:.2f})")
-            print(f"Camera Angle: {camera_yaw:.2f} degrees")
+            # print("======================================")
+            # print(f"Camera Position: ({camera_x:.2f}, {camera_y:.2f})")
+            # print(f"Camera Angle: {camera_yaw:.2f} degrees")
 
             # Return the pose information
             return {

@@ -54,8 +54,8 @@ def detect_and_mark_apriltags(image, apriltag_data): # , output_path):
             })
             print("======================================")
             print(f"AprilTag {detected_tag_info[0]['id']} ({detected_tag_info[0]['name']})")
-            print(f"  Center: {detected_tag_info[0]['center']}")
-            print(f"  Corners: {detected_tag_info[0]['corners']}")
+            # print(f"  Center: {detected_tag_info[0]['center']}")
+            # print(f"  Corners: {detected_tag_info[0]['corners']}")
 
     # # Save the image with marked AprilTags
     # cv2.imwrite(output_path, image)
