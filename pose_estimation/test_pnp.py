@@ -67,6 +67,7 @@ import cv2
 
 #     return 0
 
+
 # main function
 def run(image):
     # parameters
@@ -74,16 +75,26 @@ def run(image):
     script_dir = os.path.dirname(os.path.abspath(__file__))
     # print(f"image: {image}")
     # image_path = os.path.join(script_dir, f"images/{image}.jpg")
+    print(1)
     print(f"image input type: {type(image)}")
     # convert
     python_bytes = bytes(image)
     np_array = np.frombuffer(python_bytes, dtype=np.uint8)
     print(2)
     print(type(np_array))
-    print(np_array.shape())
-    print(np_array.flatten()[0:10])
-    # image = cv2.imdecode(np_array, cv2.IMREAD_COLOR)
-    # print(f"image input type after conversion: {type(image)}")
+    print(np_array.shape)
+    # print(np_array.flatten()[0:10])
+    # Reshape to YUV420 format
+    yuv_frame = np_array.reshape((360, 320))  # OpenCV expects interleaved format
+    print(3)
+    print(yuv_frame.shape)
+    # Convert YUV to BGR
+    bgr_image = cv2.cvtColor(yuv_frame, cv2.COLOR_YUV2BGR_I420)
+    print(4)
+    # Convert to RGB if needed
+    rgb_image = cv2.cvtColor(bgr_image, cv2.COLOR_BGR2RGB)
+    print(5)
+    print(f"image input type after conversion: {type(rgb_image)}")
     # # print(f"image input size: {image.shape()}")
     # # print(f"image: {image[0]}")
 
