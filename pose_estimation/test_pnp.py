@@ -102,7 +102,7 @@ def run(image):
     resize = 1
     image_width = int(org_image_width * resize)
     image_height = int(org_image_height * resize)
-    print(f"  image_width: {image_width}, image_height: {image_height}")
+    print(f"image_width: {image_width}, image_height: {image_height}")
     camera_focal_length = 26 * image_width / 7.03
     c_x = round(image_width / 2)
     c_y = round(image_height / 2)
