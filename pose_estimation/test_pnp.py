@@ -77,8 +77,11 @@ def run(image):
     print(f"image input type: {type(image)}")
     # convert
     python_bytes = bytes(image)
+    print(1)
     np_array = np.frombuffer(python_bytes, dtype=np.uint8)
+    print(2)
     image = cv2.imdecode(np_array, cv2.IMREAD_COLOR)
+    print(f"image input type after conversion: {type(image)}")
     print(f"image input size: {image.shape()}")
     print(f"image: {image[0]}")
 
