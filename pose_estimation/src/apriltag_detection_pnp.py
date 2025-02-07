@@ -5,19 +5,15 @@ import os
 
 def detect_and_mark_apriltags(image, apriltag_data): # , output_path):
     # Load the image
-    print(1)
     gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
 
     # Create a dictionary for quick lookup by tag ID
-    print(2)
     apriltag_dict = {tag['id']: tag for tag in apriltag_data['apriltags']}
 
     # Initialize the AprilTag detector
-    print(3)
     detector = apriltag.Detector()
 
     # Detect AprilTags in the image
-    print(4)
     results = detector.detect(gray)
 
     # List to store corners, center, and orientation of detected AprilTags

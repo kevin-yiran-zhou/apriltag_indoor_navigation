@@ -71,11 +71,11 @@ import cv2
 # main function
 def run(image):
     # parameters
-    print("======================================")
+    # print("======================================")
     script_dir = os.path.dirname(os.path.abspath(__file__))
     # print(f"image: {image}")
     # image_path = os.path.join(script_dir, f"images/{image}.jpg")
-    print(f"image input type: {type(image)}")
+    # print(f"image input type: {type(image)}")
     # convert
     python_bytes = bytes(image)
     yuv_data = np.frombuffer(python_bytes, dtype=np.uint8)
@@ -84,8 +84,8 @@ def run(image):
     yuv_frame = yuv_data.reshape((360, 320))  # OpenCV expects interleaved format
     # Convert YUV to BGR
     bgr_image = cv2.cvtColor(yuv_frame, cv2.COLOR_YUV2BGR_I420)
-    print(f"image input type after conversion: {type(bgr_image)}")
-    print("conversion done")
+    # print(f"image input type after conversion: {type(bgr_image)}")
+    # print("conversion done")
 
     # image = cv2.imread(image)
     # output_path4marked = os.path.join(script_dir, f"images_marked/{image}_marked.jpg")
@@ -100,7 +100,7 @@ def run(image):
     resize = 1
     image_width = int(org_image_width * resize)
     image_height = int(org_image_height * resize)
-    print(f"image_width: {image_width}, image_height: {image_height}")
+    # print(f"image_width: {image_width}, image_height: {image_height}")
     camera_focal_length = 26 * image_width / 7.03
     c_x = round(image_width / 2)
     c_y = round(image_height / 2)
@@ -114,7 +114,6 @@ def run(image):
         apriltag_data = json.load(f)
     # Tag detection
     detected_info, image = apriltag_detection_pnp.detect_and_mark_apriltags(bgr_image, apriltag_data) # , output_path4marked)
-    print(3)
     if len(detected_info) == 0:
         print("No AprilTag detected.")
         return None
