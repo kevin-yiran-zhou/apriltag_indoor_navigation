@@ -86,7 +86,7 @@ def run(image):
     # target_tag_id = 3
 
     # Calculate the center points
-    org_image_width = 420
+    org_image_width = 320
     org_image_height = 240
     resize = 1
     image_width = int(org_image_width * resize)
