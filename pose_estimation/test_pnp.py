@@ -77,8 +77,6 @@ def run(image):
     print(f"image input type: {type(image)}")
     # convert
     python_bytes = bytes(image)
-    print(1)
-    print(type(python_bytes))
     np_array = np.frombuffer(python_bytes, dtype=np.uint8)
     print(2)
     print(type(np_array))
