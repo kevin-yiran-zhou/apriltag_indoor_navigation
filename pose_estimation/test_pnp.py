@@ -112,11 +112,9 @@ def run(image):
     dist_coeffs = np.zeros((1, 5))
 
     # Load the apriltags.json file
-    print(1)
     with open(json_path, 'r') as f:
         apriltag_data = json.load(f)
     # Tag detection
-    print(2)
     detected_info, image = apriltag_detection_pnp.detect_and_mark_apriltags(image, apriltag_data) # , output_path4marked)
     print(3)
     if len(detected_info) == 0:

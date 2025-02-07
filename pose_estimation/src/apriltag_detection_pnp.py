@@ -4,6 +4,7 @@ import json
 import os
 
 def detect_and_mark_apriltags(image, apriltag_data): # , output_path):
+    print("detect_and_mark_apriltags")
     # Load the image
     gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
 
