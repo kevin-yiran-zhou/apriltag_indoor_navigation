@@ -130,21 +130,27 @@ def run(image, target_tag_id):
         return None
 
     # # # Navigation
-    # # twoD_pose = [pose["x"], pose["y"], pose["yaw"]]
-    # # relative_angle, distance_to_tag = navigate.calculate_navigation(
-    # #     twoD_pose, target_tag_id, json_path
-    # # )
-    # # clock = navigate.angle_to_clock_direction(relative_angle)
-    # # print("======================================")
-    # # print(navigate.message(clock, distance_to_tag))
-    # # print("======================================")
+    twoD_pose = [pose["x"], pose["y"], pose["yaw"]]
+    relative_angle, distance_to_tag = navigate.calculate_navigation(
+        twoD_pose, target_tag_id, json_path
+    )
+    print(f"relative_angle: {relative_angle}, distance_to_tag: {distance_to_tag}")
+    # clock = navigate.angle_to_clock_direction(relative_angle)
+    # print("======================================")
+    # print(navigate.message(clock, distance_to_tag))
+    # print("======================================")
 
     # # # Plot
     # # output_path4plot = os.path.join(script_dir, f"images_plot/{image}_plot.jpg")
     # # plot_room.plot_room(twoD_pose, target_tag_id, json_path, output_path4plot)
 
-    # return ["left"/"right"/"done", angle]
-    return 0
+    if abs(relative_angle) < 10:
+        return ["done", relative_angle, distance_to_tag]
+    else :
+        if relative_angle < 0:
+            return ["left", relative_angle, distance_to_tag]
+        else:
+            return ["right", relative_angle, distance_to_tag]
 
 def main():
     images = ["0_left"] # , "0_middle", "0_right", "1_left", "1_middle", "1_right", "2_left", "2_middle", "2_right", "3_left", "3_middle", "3_right"]
