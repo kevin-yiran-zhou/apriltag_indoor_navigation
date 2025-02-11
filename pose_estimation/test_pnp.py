@@ -144,11 +144,11 @@ def run(image, target_tag_id):
     # # output_path4plot = os.path.join(script_dir, f"images_plot/{image}_plot.jpg")
     # # plot_room.plot_room(twoD_pose, target_tag_id, json_path, output_path4plot)
 
-    if abs(relative_angle) < 30:
+    if relative_angle < 30 or relative_angle > 330:
         print("looking at the tag")
         return ["done", relative_angle, distance_to_tag]
     else :
-        if relative_angle < 0:
+        if relative_angle > 180:
             print("turning left")
             return ["left", relative_angle, distance_to_tag]
         else:
