@@ -108,8 +108,8 @@ def run(image, target_tag_id):
     #                         [0, camera_focal_length, c_y],
     #                         [0, 0, 1]])
     # Glasses Camera
-    camera_matrix = np.array([[277, 0, 160],
-                            [0, 277, 0.5],
+    camera_matrix = np.array([[657, 0, 312.18],
+                            [0, 657.26, 241.739],
                             [0, 0, 1]])
     dist_coeffs = np.zeros((1, 5))
 
